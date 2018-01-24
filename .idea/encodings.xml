@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/default/builder.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/cleaner.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/main.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/role.miner.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/role.soldier.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/role.worker.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/spawner.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/towers.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/util.move.js" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/default/util.position.js" charset="UTF-16" />
+  </component>
+</project>
