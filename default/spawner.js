@@ -1,39 +1,38 @@
+var utilPosition = require('util.position');
+
 module.exports = {
-    blocked: false,
     levels: [
         {
-            workerCount: 6,
-            soldierCount: 10,
+            workerCount: 12,
+            soldierCount: 5,
             archerCount: 2,
             worker: [WORK, CARRY, MOVE],
             soldier: [ATTACK, MOVE],
-            archer: [RANGED_ATTACK, MOVE]
+            archer: [RANGED_ATTACK, MOVE],
+            miner: [WORK, WORK, MOVE]
         },
         {
-            workerCount: 5,
-            soldierCount: 10,
-            archerCount: 5,
+            workerCount: 10,
+            soldierCount: 3,
+            archerCount: 3,
             worker: [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
-            soldier: [ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE],
-            archer: [RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE]
+            soldier: [ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE],
+            archer: [RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE],
+            miner: [WORK, WORK, WORK, WORK, WORK, MOVE]
         },
         {
-            workerCount: 5,
-            soldierCount: 10,
-            archerCount: 10,
+            workerCount: 8,
+            soldierCount: 7,
+            archerCount: 7,
             worker: [WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
             soldier: [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
-            archer: [RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE]
+            archer: [RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE],
+            miner: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE]
         }
     ],
     
-    tick: function() {
-        if(this.blocked) {
-            console.log("Spawner blocked")
-            return
-        }
-        level = this.getLevel()
-        var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    tick: function(spawn) {
+        level = this.getLevel(spawn)
         var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
         var soldiers = _.filter(Game.creeps, (creep) => creep.memory.role == 'soldier');
         var archers = _.filter(Game.creeps, (creep) => creep.memory.role == 'archer');
@@ -46,19 +45,19 @@ module.exports = {
         });
         var numExtensions = extensions.length + extensionConstructionSites.length*/
         
-        if(harvesters.length < level.workerCount) {
-            Game.spawns.Spawn1.createCreep(level.worker, undefined, {role: 'harvester'})
-        } else if(workers.length < level.workerCount) {
-            Game.spawns.Spawn1.createCreep(level.worker, undefined, {role: 'worker'})
+        if(workers.length < level.workerCount) {
+            spawn.spawnCreep(level.worker, spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
+        } else if(utilPosition.getFreeMiningContainer(spawn.room) !== undefined) {
+            spawn.spawnCreep(level.miner, spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
         } else if(soldiers.length < level.soldierCount) {
-            Game.spawns.Spawn1.createCreep(level.soldier, undefined, {role: 'soldier', target: Game.spawns.Spawn1.room.name})
+            spawn.spawnCreep(level.soldier, spawn.name + "-" + Game.time, {memory: {role: 'soldier', target: spawn.room.name}})
         } else if(archers.length < level.archerCount) {
-            Game.spawns.Spawn1.createCreep(level.archer, undefined, {role: 'archer', target: Game.spawns.Spawn1.room.name})
+            spawn.spawnCreep(level.archer, spawn.name + "-" + Game.time, {memory: {role: 'archer', target: spawn.room.name}})
         }
     },
     
-    getLevel: function(){
-        max = Game.spawns.Spawn1.room.energyCapacityAvailable
+    getLevel: function(spawn){
+        max = spawn.room.energyCapacityAvailable;
         if (max < (300 + 5 * 50)) {
             return this.levels[0]
         } else if (max < (300 + 10*50)) {
@@ -70,5 +69,4 @@ module.exports = {
             return this.levels[2]
         }
     }
-
 };
