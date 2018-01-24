@@ -18,7 +18,7 @@ module.exports.loop = function () {
     
     var spawns = Game.spawns;
     _.forEach(spawns, function(spawn){
-        spawner.tick(spawn);
+        spawner.tick(spawn, activeRooms);
     });
     
     activeRooms.forEach(function(room){
@@ -32,7 +32,7 @@ module.exports.loop = function () {
             roleMiner.run(creep);
         }
         if(creep.memory.role === 'worker') {
-            roleWorker.run(creep);
+            roleWorker.run(creep, activeRooms);
         }
         if(creep.memory.role === 'soldier') {
             roleSoldier.run(creep);

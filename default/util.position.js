@@ -15,6 +15,20 @@ module.exports = {
         return positions;
     },
 
+    findClosestByPathMultiRoom: function (pos, objects) {
+        var dists = {};
+        objects.forEach(function (obj) {
+            if (obj.pos.roomName !== pos.roomName) {
+                dists[obj.id] = 50;
+            } else {
+                dists[obj.id] = _.size(pos.findPathTo(obj.pos));
+            }
+        });
+        return Game.getObjectById(_.min(_.keys(dists), function (k) {
+            return dists[k];
+        }));
+    },
+
     getSourceMiningSpots: function (source) {
         return _.filter(this.neighbours(source.pos), function (neighbour) {
             return neighbour.lookFor(LOOK_TERRAIN) !== 'wall';

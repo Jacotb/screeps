@@ -31,7 +31,7 @@ module.exports = {
         }
     ],
 
-    tick: function (spawn) {
+    tick: function (spawn, rooms) {
         var level = this.getLevel(spawn);
         var workers = _.filter(Game.creeps, function (creep) {
             return creep.memory.role === 'worker'
@@ -51,29 +51,29 @@ module.exports = {
         });
         var numExtensions = extensions.length + extensionConstructionSites.length*/
 
-        if (workers.length < level.workerCount) {
+        if (workers.length < level.workerCount * _.size(rooms)) {
             spawn.spawnCreep(level.worker, spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
         } else if (utilPosition.getFreeMiningContainer(spawn.room) !== undefined) {
             spawn.spawnCreep(level.miner, spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
-        } else if (soldiers.length < level.soldierCount) {
+        } else if (soldiers.length < level.soldierCount * _.size(rooms)) {
             spawn.spawnCreep(level.soldier, spawn.name + "-" + Game.time, {
                 memory: {
                     role: 'soldier',
-                    target: spawn.room.name
+                    target: _.sample(rooms).name
                 }
             })
-        } else if (archers.length < level.archerCount) {
+        } else if (archers.length < level.archerCount * _.size(rooms)) {
             spawn.spawnCreep(level.archer, spawn.name + "-" + Game.time, {
                 memory: {
                     role: 'archer',
-                    target: spawn.room.name
+                    target: _.sample(rooms).name
                 }
             })
         }
     },
 
     getLevel: function (spawn) {
-        max = spawn.room.energyCapacityAvailable;
+        var max = spawn.room.energyCapacityAvailable;
         if (max < (300 + 5 * 50)) {
             return this.levels[0]
         } else if (max < (300 + 10 * 50)) {
