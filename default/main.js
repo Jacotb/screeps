@@ -7,10 +7,12 @@ var spawner = require('spawner');
 var builder = require('builder');
 
 module.exports.loop = function () {
-    var activeRooms = [
+    var activeRooms = _.filter([
         Game.rooms['W79S83'],
         Game.rooms['W79S84']
-    ];
+    ], function(room){
+      return room !== undefined;
+    });
     
     cleaner.tick();
     
