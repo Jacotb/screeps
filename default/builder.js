@@ -9,11 +9,11 @@ module.exports = {
         if (room.memory.containerConstructionSitesCreated === undefined){
             if (_.every(utilPosition.getMiningSpots(room), function(minerSpot){
                 if (_.every(minerSpot.lookFor(LOOK_CONSTRUCTION_SITES), function(consSite){
-                    return consSite.structureType != STRUCTURE_CONTAINER;
+                    return consSite.structureType !== STRUCTURE_CONTAINER;
                 }) && _.every(minerSpot.lookFor(LOOK_STRUCTURES), function(structure){
-                    return structure.structureType != STRUCTURE_CONTAINER;
+                    return structure.structureType !== STRUCTURE_CONTAINER;
                 })){
-                    return room.createConstructionSite(minerSpot, STRUCTURE_CONTAINER) == OK;
+                    return room.createConstructionSite(minerSpot, STRUCTURE_CONTAINER) === OK;
                 } else {
                     return true;
                 }

@@ -36,11 +36,11 @@ module.exports = {
         
         var target = Game.getObjectById(creep.memory.energySourceId);
         var result = creep.harvest(target);
-        if (result == OK) {
+        if (result === OK) {
             creep.say("⛏️");
-        } else if (result == ERR_NOT_IN_RANGE) {
+        } else if (result === ERR_NOT_IN_RANGE) {
             creep.say("ERR_NOT_IN_RANGE");
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴️⛏️");
         } else {
             creep.say(result);

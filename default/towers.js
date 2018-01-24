@@ -1,23 +1,23 @@
-var towers = {
+module.exports = {
 
-    /** @param {Game} game **/
-    tick: function(room) {
+    /** @param {Room} room **/
+    tick: function (room) {
         towers = room.find(FIND_MY_STRUCTURES, {
-                    filter: { structureType: STRUCTURE_TOWER }
-                })
-        _.forEach(towers, function(tower){
+            filter: {structureType: STRUCTURE_TOWER}
+        });
+        _.forEach(towers, function (tower) {
             var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax
+                filter: function (structure) {
+                    return structure.hits < structure.hitsMax;
+                }
             });
-            if(closestDamagedStructure) {
+            if (closestDamagedStructure) {
                 tower.repair(closestDamagedStructure);
             }
             var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-            if(closestHostile) {
+            if (closestHostile) {
                 tower.attack(closestHostile);
             }
         })
-	}
+    }
 };
-
-module.exports = towers;

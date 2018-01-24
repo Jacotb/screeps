@@ -30,13 +30,19 @@ module.exports = {
             miner: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE]
         }
     ],
-    
-    tick: function(spawn) {
-        level = this.getLevel(spawn)
-        var workers = _.filter(Game.creeps, (creep) => creep.memory.role == 'worker');
-        var soldiers = _.filter(Game.creeps, (creep) => creep.memory.role == 'soldier');
-        var archers = _.filter(Game.creeps, (creep) => creep.memory.role == 'archer');
-        
+
+    tick: function (spawn) {
+        var level = this.getLevel(spawn);
+        var workers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'worker'
+        });
+        var soldiers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'soldier'
+        });
+        var archers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'archer'
+        });
+
         /*var extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
             filter: { structureType: STRUCTURE_EXTENSION }
         });
@@ -44,28 +50,38 @@ module.exports = {
             filter: { structureType: STRUCTURE_EXTENSION }
         });
         var numExtensions = extensions.length + extensionConstructionSites.length*/
-        
-        if(workers.length < level.workerCount) {
+
+        if (workers.length < level.workerCount) {
             spawn.spawnCreep(level.worker, spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
-        } else if(utilPosition.getFreeMiningContainer(spawn.room) !== undefined) {
+        } else if (utilPosition.getFreeMiningContainer(spawn.room) !== undefined) {
             spawn.spawnCreep(level.miner, spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
-        } else if(soldiers.length < level.soldierCount) {
-            spawn.spawnCreep(level.soldier, spawn.name + "-" + Game.time, {memory: {role: 'soldier', target: spawn.room.name}})
-        } else if(archers.length < level.archerCount) {
-            spawn.spawnCreep(level.archer, spawn.name + "-" + Game.time, {memory: {role: 'archer', target: spawn.room.name}})
+        } else if (soldiers.length < level.soldierCount) {
+            spawn.spawnCreep(level.soldier, spawn.name + "-" + Game.time, {
+                memory: {
+                    role: 'soldier',
+                    target: spawn.room.name
+                }
+            })
+        } else if (archers.length < level.archerCount) {
+            spawn.spawnCreep(level.archer, spawn.name + "-" + Game.time, {
+                memory: {
+                    role: 'archer',
+                    target: spawn.room.name
+                }
+            })
         }
     },
-    
-    getLevel: function(spawn){
+
+    getLevel: function (spawn) {
         max = spawn.room.energyCapacityAvailable;
         if (max < (300 + 5 * 50)) {
             return this.levels[0]
-        } else if (max < (300 + 10*50)) {
+        } else if (max < (300 + 10 * 50)) {
             return this.levels[1]
-        } else if (max < (300 + 20*50)) {
+        } else if (max < (300 + 20 * 50)) {
             return this.levels[2]
         } else {
-            console.log("Update designs!")
+            console.log("Update designs!");
             return this.levels[2]
         }
     }

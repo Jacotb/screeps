@@ -63,16 +63,16 @@ module.exports = {
         var potentialTasks = [];
         var self = this;
                
-	    if(creep.carry.energy == 0) {
+	    if(creep.carry.energy === 0) {
 	        if (_.some(creep.room.find(FIND_DROPPED_RESOURCES), function(resource){
-	            return resource.resourceType == RESOURCE_ENERGY;
+	            return resource.resourceType === RESOURCE_ENERGY;
 	        })) {
 	            potentialTasks.push(self.Task.pickup);
 	        }
 	        
 	        if (_.some(creep.room.find(FIND_SOURCES), function(source){
 	            return (_.size(utilPosition.getSourceMiners(source)) + _.size(_.filter(Game.creeps, function(creep){
-	                return creep.memory.task == self.Task.harvest && creep.memory.harvestTargetId == source.id;
+	                return creep.memory.task === self.Task.harvest && creep.memory.harvestTargetId === source.id;
 	            })) < _.size(utilPosition.getSourceMiningSpots(source)));
 	        })) {
 	            potentialTasks.push(self.Task.harvest);
@@ -92,14 +92,14 @@ module.exports = {
 	            
 	        if (_.some(creep.room.find(FIND_MY_STRUCTURES), function(structure){
 	            return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function(gCreep){
-    	            return gCreep.memory.role == "worker" && gCreep.memory.task == self.Task.transfer && gCreep.memory.transferTargetId == structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
+    	            return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
     	        }));
 	        })) {
 	            potentialTasks.push(self.Task.transfer);
 	        }
 	        
 	        if (!_.some(potentialTasks, function(task){
-	            return task == self.Task.transfer;
+	            return task === self.Task.transfer;
 	        })) {
     	        if (_.some(creep.room.find(FIND_STRUCTURES), function(structure){
         	        return structure.hits < structure.hitsMax / 1.33;
@@ -136,16 +136,16 @@ module.exports = {
 	        return false;
 	    }
     	    
-        var result = creep.build(target)
-        if(result == OK) {
+        var result = creep.build(target);
+        if(result === OK) {
             creep.say("🏗️");
-        } else if(result == ERR_NOT_IN_RANGE) {
+        } else if(result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#0000ff', '🏗️');
-        } else if (result == ERR_INVALID_TARGET){
+        } else if (result === ERR_INVALID_TARGET){
             creep.room.lookForAt(LOOK_CREEPS, target.pos.x, target.pos.y).forEach(function(blocker){
                 blocker.move(_.sample([TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT]))
             });
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴🏗️");
         } else {
             creep.say(result);
@@ -174,11 +174,11 @@ module.exports = {
 	    }
         
 	    var result = creep.upgradeController(target);
-	    if(result == OK) {
+	    if(result === OK) {
             creep.say("⬆️");
-	    } else if(result == ERR_NOT_IN_RANGE) {
+	    } else if(result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#0000ff', '⬆️');
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴⬆️");
         } else {
             creep.say(result)
@@ -212,14 +212,14 @@ module.exports = {
             return false;
         } 
         
-        var result = creep.repair(target)
-        if(result == OK) {
+        var result = creep.repair(target);
+        if(result === OK) {
             creep.say("🔧");
-        } else if(result == ERR_NOT_IN_RANGE) {
+        } else if(result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#00ff00', '🔧');
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴🔧");
-        } else if (result == ERR_INVALID_TARGET) {
+        } else if (result === ERR_INVALID_TARGET) {
             return false;
         } else {
             creep.say(result);
@@ -233,7 +233,7 @@ module.exports = {
 	    if (creep.memory.transferTargetId === undefined) {
     	    target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {filter: function(structure) {
     	        return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function(gCreep){
-    	            return gCreep.memory.role == "worker" && gCreep.memory.task == self.Task.transfer && gCreep.memory.transferTargetId == structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
+    	            return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
     	        }));
     	    }});
     	    if (target) {
@@ -256,12 +256,12 @@ module.exports = {
 	        return false;
 	    }
 	    
-        var result = creep.transfer(target, RESOURCE_ENERGY, Math.min(target.energyCapacity - target.energy, creep.carry.energy))
-        if(result == OK) {
+        var result = creep.transfer(target, RESOURCE_ENERGY, Math.min(target.energyCapacity - target.energy, creep.carry.energy));
+        if(result === OK) {
             creep.say("🎁");
-        } else if(result == ERR_NOT_IN_RANGE) {
+        } else if(result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#aa0000', '🎁');
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴🎁");
         } else {
             creep.say(result)
@@ -271,6 +271,7 @@ module.exports = {
 	
 	harvest: function(creep){
 	    var target;
+	    var self = this;
 	    
 	    var retarget = false;
 	    if (creep.memory.harvestTargetId === undefined){
@@ -278,9 +279,9 @@ module.exports = {
 	    }
 	    if (!retarget && creep.memory.harvestSourceRegenerationRetargeted === undefined &&
 	            (_.some(creep.room.find(FIND_SOURCES), function (source){
-        	        return source.ticksToRegeneration < this.ANTICIPATE_SOURCE_REGENERATION_DURATION;
+        	        return source.ticksToRegeneration < self.ANTICIPATE_SOURCE_REGENERATION_DURATION;
         	    }) || _.some(creep.room.find(FIND_SOURCES), function (source){
-        	        return source.energy == source.energyCapacity;
+        	        return source.energy === source.energyCapacity;
         	    }))
         	){
         	    creep.memory.harvestSourceRegenerationRetargeted = true;
@@ -288,7 +289,7 @@ module.exports = {
         }
         
         if (retarget) {
-    	    target = this.findLeastUtilizedSource(creep);
+    	    target = self.findLeastUtilizedSource(creep);
     	    if (target) {
     	        creep.memory.harvestTargetId = target.id;
     	    } else {
@@ -306,13 +307,13 @@ module.exports = {
 	    }
 	    
         var result = creep.harvest(target);
-        if (result == OK) {
+        if (result === OK) {
             creep.say("⛏️");
-        } else if (result == ERR_NOT_IN_RANGE) {
+        } else if (result === ERR_NOT_IN_RANGE) {
             return utilMove.run(creep, target, '#ff0000', '️⛏️');
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴️⛏️");
-        } else if (result == ERR_NOT_ENOUGH_RESOURCES){
+        } else if (result === ERR_NOT_ENOUGH_RESOURCES){
             if (target.ticksToRegeneration < this.ANTICIPATE_SOURCE_REGENERATION_DURATION){
                 utilMove.run(creep, target, '#ff0000', '️⛏️');
             } else {
@@ -347,13 +348,13 @@ module.exports = {
 	    }
 	    
         var result = creep.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy);
-        if (result == OK) {
+        if (result === OK) {
             creep.say('⛽');
-        } else if (result == ERR_NOT_IN_RANGE) {
+        } else if (result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#ff0000', '⛽');
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴⛽");
-        } else if (result == ERR_NOT_ENOUGH_RESOURCES){
+        } else if (result === ERR_NOT_ENOUGH_RESOURCES){
             return false;
         } else {
             creep.say(result);
@@ -365,7 +366,7 @@ module.exports = {
 	    var target;
 	    if (creep.memory.pickupTargetId === undefined){
 	        target = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {filter: function(resource){
-    	            return resource.resourceType == RESOURCE_ENERGY;
+    	            return resource.resourceType === RESOURCE_ENERGY;
     	        }});
     	    if (target) {
     	        creep.memory.pickupTargetId = target.id;
@@ -384,11 +385,11 @@ module.exports = {
 	    }
 	    
         var result = creep.pickup(target);
-        if(result == OK) {
+        if(result === OK) {
             creep.say("🚜");
-        } else if (result == ERR_NOT_IN_RANGE) {
+        } else if (result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#ff0000', '🚜');
-        } else if (result == ERR_TIRED) {
+        } else if (result === ERR_TIRED) {
             creep.say("😴🚜");
         } else {
             creep.say(result)
@@ -405,7 +406,7 @@ module.exports = {
 	        var nSpots = _.size(utilPosition.getSourceMiningSpots(source));
 	        
 	        var nCreeps = _.size(_.filter(Game.creeps, function(gCreep){
-	            return gCreep.memory.task == self.Task.harvest && gCreep.memory.harvestTargetId == source.id;
+	            return gCreep.memory.task === self.Task.harvest && gCreep.memory.harvestTargetId === source.id;
 	        })) + _.size(utilPosition.getSourceMiners(source));
 	        
 	        return nCreeps / (nSpots + 1);

@@ -2,14 +2,14 @@ var roleWorker = require('role.worker');
 var roleSoldier = require('role.soldier');
 var roleMiner = require('role.miner');
 var towers = require('towers');
-var cleaner = require('cleaner')
-var spawner = require('spawner')
+var cleaner = require('cleaner');
+var spawner = require('spawner');
 var builder = require('builder');
 
 module.exports.loop = function () {
     var activeRooms = [
         Game.rooms['W79S83'],
-        Game.rooms['W79S84'],
+        Game.rooms['W79S84']
     ];
     
     cleaner.tick();
@@ -26,17 +26,17 @@ module.exports.loop = function () {
 
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if(creep.memory.role == 'miner') {
+        if(creep.memory.role === 'miner') {
             roleMiner.run(creep);
         }
-        if(creep.memory.role == 'worker') {
+        if(creep.memory.role === 'worker') {
             roleWorker.run(creep);
         }
-        if(creep.memory.role == 'soldier') {
+        if(creep.memory.role === 'soldier') {
             roleSoldier.run(creep);
         }
-        if(creep.memory.role == 'archer') {
+        if(creep.memory.role === 'archer') {
             roleSoldier.run(creep);
         }
     }
-}
+};
