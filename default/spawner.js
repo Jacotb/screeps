@@ -1,4 +1,5 @@
 var utilPosition = require('util.position');
+var ul = require('util.lang');
 
 module.exports = {
     levels: [
@@ -53,7 +54,11 @@ module.exports = {
 
         if (workers.length < level.workerCount * _.size(rooms)) {
             spawn.spawnCreep(level.worker, spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
-        } else if (utilPosition.getFreeMiningContainer(spawn.room) !== undefined) {
+        } else if (_.some(ul.flatMap(rooms, function (room) {
+                return utilPosition.getFreeMiningContainer(room);
+            }), function (container) {
+                return container !== undefined;
+            })) {
             spawn.spawnCreep(level.miner, spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
         } else if (soldiers.length < level.soldierCount * _.size(rooms)) {
             spawn.spawnCreep(level.soldier, spawn.name + "-" + Game.time, {

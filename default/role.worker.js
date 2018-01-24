@@ -13,25 +13,25 @@ module.exports = {
             iterations++;
             switch (creep.memory.task) {
                 case this.Task.build:
-                    taskOngoing = this.build(creep);
+                    taskOngoing = this.build(creep, rooms);
                     break;
                 case this.Task.upgrade:
-                    taskOngoing = this.upgrade(creep);
+                    taskOngoing = this.upgrade(creep, rooms);
                     break;
                 case this.Task.repair:
-                    taskOngoing = this.repair(creep);
+                    taskOngoing = this.repair(creep, rooms);
                     break;
                 case this.Task.transfer:
                     taskOngoing = this.transfer(creep, rooms);
                     break;
                 case this.Task.withdraw:
-                    taskOngoing = this.withdraw(creep);
+                    taskOngoing = this.withdraw(creep, rooms);
                     break;
                 case this.Task.harvest:
                     taskOngoing = this.harvest(creep, rooms);
                     break;
                 case this.Task.pickup:
-                    taskOngoing = this.pickup(creep);
+                    taskOngoing = this.pickup(creep, rooms);
                     break;
                 default:
                     break;
@@ -65,8 +65,13 @@ module.exports = {
         var self = this;
 
         if (creep.carry.energy === 0) {
-            if (_.some(creep.room.find(FIND_DROPPED_RESOURCES), function (resource) {
-                    return resource.resourceType === RESOURCE_ENERGY;
+            var dropped = ul.flatMap(rooms, function (room) {
+                return room.find(FIND_DROPPED_RESOURCES);
+            });
+            if (_.some(dropped, function (drop) {
+                    return drop.resourceType === RESOURCE_ENERGY && !_.some(Game.creeps, function (gCreep) {
+                        return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.pickup && gCreep.memory.pickupTargetId === drop.id;
+                    });
                 })) {
                 potentialTasks.push(self.Task.pickup);
             }
@@ -82,7 +87,10 @@ module.exports = {
                 potentialTasks.push(self.Task.harvest);
             }
 
-            if (_.some(utilPosition.getMiningContainers(creep.room), function (container) {
+            var containers = ul.flatMap(rooms, function (room) {
+                return utilPosition.getMiningContainers(room);
+            });
+            if (_.some(containers, function (container) {
                     return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
                 })) {
                 potentialTasks.push(self.Task.withdraw);
@@ -97,6 +105,7 @@ module.exports = {
             var structures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_STRUCTURES);
             });
+
             if (_.some(structures, function (structure) {
                     return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
                         return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
@@ -108,13 +117,17 @@ module.exports = {
             if (!_.some(potentialTasks, function (task) {
                     return task === self.Task.transfer;
                 })) {
-                if (_.some(creep.room.find(FIND_STRUCTURES), function (structure) {
+                if (_.some(structures, function (structure) {
                         return structure.hits < structure.hitsMax / 1.33;
                     })) {
                     potentialTasks.push(self.Task.repair);
                 }
 
-                if (_.some(creep.room.find(FIND_MY_CONSTRUCTION_SITES))) {
+                var consSites = ul.flatMap(rooms, function (room) {
+                    return room.find(FIND_MY_CONSTRUCTION_SITES);
+                });
+
+                if (_.some(consSites)) {
                     potentialTasks.push(self.Task.build);
                 }
             }
@@ -123,10 +136,13 @@ module.exports = {
         return _.sample(potentialTasks);
     },
 
-    build: function (creep) {
+    build: function (creep, rooms) {
         var target;
         if (creep.memory.buildTargetId === undefined) {
-            target = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+            var consSites = ul.flatMap(rooms, function (room) {
+                return room.find(FIND_MY_CONSTRUCTION_SITES);
+            });
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, consSites);
             if (target) {
                 creep.memory.buildTargetId = target.id;
             } else {
@@ -197,14 +213,17 @@ module.exports = {
         return true;
     },
 
-    repair: function (creep) {
+    repair: function (creep, rooms) {
         var target;
         if (creep.memory.repairTargetId === undefined) {
-            target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: function (structure) {
-                    return structure.hits < structure.hitsMax / 1.33;
-                }
+            var structures = ul.flatMap(rooms, function (room) {
+                return room.find(FIND_STRUCTURES, {
+                    filter: function (structure) {
+                        return structure.hits < structure.hitsMax / 1.33;
+                    }
+                });
             });
+            target = utilPosition.findClosestByPathMultiRoom(structures);
             if (target) {
                 creep.memory.repairTargetId = target.id;
             } else {
@@ -345,12 +364,13 @@ module.exports = {
         return true;
     },
 
-    withdraw: function (creep) {
+    withdraw: function (creep, rooms) {
         var target;
         if (creep.memory.withdrawTargetId === undefined) {
-            target = creep.pos.findClosestByPath(_.filter(utilPosition.getMiningContainers(creep.room), function (container) {
-                return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
-            }));
+            var containers = ul.flatMap(rooms, function (room) {
+                return utilPosition.getMiningContainers(room);
+            });
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, containers);
             if (target) {
                 creep.memory.withdrawTargetId = target.id;
             } else {
@@ -382,14 +402,17 @@ module.exports = {
         return true;
     },
 
-    pickup: function (creep) {
+    pickup: function (creep, rooms) {
         var target;
         if (creep.memory.pickupTargetId === undefined) {
-            target = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-                filter: function (resource) {
-                    return resource.resourceType === RESOURCE_ENERGY;
-                }
+            var dropped = _.filter(ul.flatMap(rooms, function (room) {
+                return room.find(FIND_DROPPED_RESOURCES);
+            }), function (drop) {
+                return drop.resourceType === RESOURCE_ENERGY && !_.some(Game.creeps, function (gCreep) {
+                    return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.pickup && gCreep.memory.pickupTargetId === drop.id;
+                });
             });
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, dropped);
             if (target) {
                 creep.memory.pickupTargetId = target.id;
             } else {
