@@ -138,6 +138,8 @@ module.exports = {
 
     build: function (creep, rooms) {
         var target;
+        var self = this;
+
         if (creep.memory.buildTargetId === undefined) {
             var consSites = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_CONSTRUCTION_SITES);
@@ -178,6 +180,8 @@ module.exports = {
 
     upgrade: function (creep, rooms) {
         var target;
+        var self = this;
+
         if (creep.memory.upgradeTargetId === undefined) {
             target = _.sample(_.filter(_.map(rooms, function (room) {
                 return room.controller;
@@ -215,6 +219,8 @@ module.exports = {
 
     repair: function (creep, rooms) {
         var target;
+        var self = this;
+
         if (creep.memory.repairTargetId === undefined) {
             var structures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_STRUCTURES, {
@@ -223,7 +229,7 @@ module.exports = {
                     }
                 });
             });
-            target = utilPosition.findClosestByPathMultiRoom(structures);
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, structures);
             if (target) {
                 creep.memory.repairTargetId = target.id;
             } else {
@@ -262,6 +268,7 @@ module.exports = {
     transfer: function (creep, rooms) {
         var target;
         var self = this;
+
         if (creep.memory.transferTargetId === undefined) {
             var structures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_STRUCTURES);
@@ -366,6 +373,8 @@ module.exports = {
 
     withdraw: function (creep, rooms) {
         var target;
+        var self = this;
+
         if (creep.memory.withdrawTargetId === undefined) {
             var containers = ul.flatMap(rooms, function (room) {
                 return utilPosition.getMiningContainers(room);
@@ -404,6 +413,8 @@ module.exports = {
 
     pickup: function (creep, rooms) {
         var target;
+        var self = this;
+
         if (creep.memory.pickupTargetId === undefined) {
             var dropped = _.filter(ul.flatMap(rooms, function (room) {
                 return room.find(FIND_DROPPED_RESOURCES);
