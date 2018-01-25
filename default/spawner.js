@@ -17,18 +17,18 @@ module.exports = {
             soldierCount: 3,
             archerCount: 3,
             worker: [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
-            soldier: [ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE],
-            archer: [RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE],
-            miner: [WORK, WORK, WORK, WORK, WORK, MOVE]
+            soldier: [ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE],
+            archer: [RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE],
+            miner: [WORK, WORK, WORK, WORK, MOVE, MOVE]
         },
         {
-            workerCount: 8,
-            soldierCount: 7,
-            archerCount: 7,
-            worker: [WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
-            soldier: [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
-            archer: [RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE],
-            miner: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE]
+            workerCount: 10,
+            soldierCount: 5,
+            archerCount: 5,
+            worker: [WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+            soldier: [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
+            archer: [RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE],
+            miner: [WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE]
         }
     ],
 
