@@ -9,54 +9,51 @@ module.exports = {
     },
 
     tick: function (spawn, rooms, roomNames) {
-        var workers = _.filter(Game.creeps, function (creep) {
-            return creep.memory.role === 'worker'
-        });
-        var soldiers = _.filter(Game.creeps, function (creep) {
-            return creep.memory.role === 'soldier'
-        });
-        var archers = _.filter(Game.creeps, function (creep) {
-            return creep.memory.role === 'archer'
-        });
+        if (spawn.room.energyAvailable > spawn.room.energyCapacityAvailable * 0.8) {
+            var miners = _.filter(Game.creeps, function (creep) {
+                return creep.memory.role === 'miner'
+            });
+            var workers = _.filter(Game.creeps, function (creep) {
+                return creep.memory.role === 'worker'
+            });
+            var soldiers = _.filter(Game.creeps, function (creep) {
+                return creep.memory.role === 'soldier'
+            });
+            var archers = _.filter(Game.creeps, function (creep) {
+                return creep.memory.role === 'archer'
+            });
 
-        /*var extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
-            filter: { structureType: STRUCTURE_EXTENSION }
-        });
-        var extensionConstructionSites = Game.spawns.Spawn1.room.find(FIND_CONSTRUCTION_SITES, {
-            filter: { structureType: STRUCTURE_EXTENSION }
-        });
-        var numExtensions = extensions.length + extensionConstructionSites.length*/
-
-        if (workers.length < this.creepCount.workers) {
-            spawn.spawnCreep(this.getBody('worker', spawn), spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
-        } else if (_.some(ul.flatMap(rooms, function (room) {
-                return utilPosition.getFreeMiningContainer(room);
-            }), function (container) {
-                return container !== undefined;
-            })) {
-            spawn.spawnCreep(this.getBody('miner', spawn), spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
-        } else if (soldiers.length < this.creepCount.soldiers * _.size(rooms)) {
-            spawn.spawnCreep(this.getBody('soldier', spawn), spawn.name + "-" + Game.time, {
-                memory: {
-                    role: 'soldier',
-                    target: _.sample(roomNames)
-                }
-            })
-        } else if (archers.length < this.creepCount.archers * _.size(rooms)) {
-            spawn.spawnCreep(this.getBody('archer', spawn), spawn.name + "-" + Game.time, {
-                memory: {
-                    role: 'archer',
-                    target: _.sample(roomNames)
-                }
-            })
+            if (workers.length < this.creepCount.workers && workers.length < miners.length * 3) {
+                spawn.spawnCreep(this.getBody('worker', spawn), spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
+            } else if (_.some(ul.flatMap(rooms, function (room) {
+                    return utilPosition.getFreeMiningContainer(room);
+                }), function (container) {
+                    return container !== undefined;
+                })) {
+                spawn.spawnCreep(this.getBody('miner', spawn), spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
+            } else if (soldiers.length < this.creepCount.soldiers * _.size(rooms)) {
+                spawn.spawnCreep(this.getBody('soldier', spawn), spawn.name + "-" + Game.time, {
+                    memory: {
+                        role: 'soldier',
+                        target: _.sample(roomNames)
+                    }
+                })
+            } else if (archers.length < this.creepCount.archers * _.size(rooms)) {
+                spawn.spawnCreep(this.getBody('archer', spawn), spawn.name + "-" + Game.time, {
+                    memory: {
+                        role: 'archer',
+                        target: _.sample(roomNames)
+                    }
+                })
+            }
         }
     },
 
     getBody: function (creepType, spawn) {
-        var max = spawn.room.energyCapacityAvailable * 0.9;
+        var max = spawn.room.energyAvailable;
         switch (creepType) {
             case 'worker':
-                return this.createBody(max, [WORK, MOVE, CARRY]);
+                return this.createBody(max, [MOVE, WORK, CARRY]);
             case 'soldier':
                 return this.createBody(max, [MOVE, ATTACK]);
             case 'archer':
@@ -71,8 +68,8 @@ module.exports = {
         var body = [];
         var testBody = [];
         var sequenceI = 0;
-        while (this.bodyCost(testBody) < maxEnergy) {
-            body = testBody;
+        while (this.bodyCost(testBody) <= maxEnergy || testBody.length <= sequence.length) {
+            body = testBody.slice(0);
             testBody.push(sequence[sequenceI]);
             sequenceI = (sequenceI + 1) % sequence.length;
         }

@@ -19,7 +19,7 @@ module.exports = {
         var dists = {};
         objects.forEach(function (obj) {
             if (obj.pos.roomName !== pos.roomName) {
-                dists[obj.id] = 50;
+                dists[obj.id] = PathFinder.search(pos, obj.pos).cost;
             } else {
                 dists[obj.id] = _.size(pos.findPathTo(obj.pos));
             }

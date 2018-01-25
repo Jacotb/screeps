@@ -98,14 +98,13 @@ module.exports = {
                 }
             }
         } else {
-            if (Math.random() < 0.2) {
+            if (Math.random() < 0.1) {
                 potentialTasks.push(self.Task.upgrade);
             }
 
             var structures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_STRUCTURES);
             });
-
             if (_.some(structures, function (structure) {
                     return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
                         return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
@@ -114,19 +113,20 @@ module.exports = {
                 potentialTasks.push(self.Task.transfer);
             }
 
+            if (Math.random() < 0.1) {
+                var consSites = ul.flatMap(rooms, function (room) {
+                    return room.find(FIND_MY_CONSTRUCTION_SITES);
+                });
+                if (_.some(consSites)) {
+                    potentialTasks.push(self.Task.build);
+                }
+            }
+
             if (!_.includes(potentialTasks, self.Task.transfer)) {
                 if (_.some(structures, function (structure) {
                         return structure.hits < structure.hitsMax / 1.33;
                     })) {
                     potentialTasks.push(self.Task.repair);
-                }
-
-                var consSites = ul.flatMap(rooms, function (room) {
-                    return room.find(FIND_MY_CONSTRUCTION_SITES);
-                });
-
-                if (_.some(consSites)) {
-                    potentialTasks.push(self.Task.build);
                 }
             }
         }
@@ -271,12 +271,41 @@ module.exports = {
             var structures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_STRUCTURES);
             });
+
             target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
-                return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
-                    return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
+                return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN)
+                    && structure.energy < structure.energyCapacity
+                    && !_.some(_.filter(Game.creeps, function (gCreep) {
+                    return gCreep.memory.role === "worker"
+                        && gCreep.memory.task === self.Task.transfer
+                        && gCreep.memory.transferTargetId === structure.id
+                        && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
+                        && _.size(gCreep.pos.findPathTo(structure)) <= _.size(creep.pos.findPathTo(structure));
+
                 }));
             }));
+            if (!target) {
+                target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
+                    return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
+                        return gCreep.memory.role === "worker"
+                            && gCreep.memory.task === self.Task.transfer
+                            && gCreep.memory.transferTargetId === structure.id
+                            && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
+                            && _.size(gCreep.pos.findPathTo(structure)) <= _.size(creep.pos.findPathTo(structure));
+                    }));
+                }));
+            }
             if (target) {
+                if (target.energyCapacity - target.energy <= creep.carry.energy) {
+                    _.filter(Game.creeps, function (gCreep) {
+                        return gCreep.memory.role === "worker"
+                        && gCreep.memory.task === self.Task.transfer
+                        && gCreep.memory.transferTargetId === target.id
+                        && _.size(gCreep.pos.findPathTo(target)) > _.size(creep.pos.findPathTo(target));
+                    }).forEach(function (gCreep) {
+                        delete gCreep.memory.task;
+                    });
+                }
                 creep.memory.transferTargetId = target.id;
             } else {
                 return false;
