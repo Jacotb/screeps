@@ -42,7 +42,7 @@ module.exports = {
                 this.resetTaskMemory(creep);
             }
 
-            if (iterations > 10) {
+            if (iterations > 3) {
                 creep.say('no task');
                 break;
             }
@@ -76,17 +76,6 @@ module.exports = {
                 potentialTasks.push(self.Task.pickup);
             }
 
-            var sources = ul.flatMap(rooms, function (room) {
-                return room.find(FIND_SOURCES);
-            });
-            if (_.some(sources, function (source) {
-                    return (_.size(utilPosition.getSourceMiners(source)) + _.size(_.filter(Game.creeps, function (creep) {
-                        return creep.memory.task === self.Task.harvest && creep.memory.harvestTargetId === source.id;
-                    })) < _.size(utilPosition.getSourceMiningSpots(source)));
-                })) {
-                potentialTasks.push(self.Task.harvest);
-            }
-
             var containers = ul.flatMap(rooms, function (room) {
                 return utilPosition.getMiningContainers(room);
             });
@@ -94,8 +83,19 @@ module.exports = {
                     return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
                 })) {
                 potentialTasks.push(self.Task.withdraw);
-                potentialTasks.push(self.Task.withdraw);
-                potentialTasks.push(self.Task.withdraw);
+            }
+
+            if (!_.includes(potentialTasks, self.Task.withdraw)) {
+                var sources = ul.flatMap(rooms, function (room) {
+                    return room.find(FIND_SOURCES);
+                });
+                if (_.some(sources, function (source) {
+                        return (_.size(utilPosition.getSourceMiners(source)) + _.size(_.filter(Game.creeps, function (creep) {
+                            return creep.memory.task === self.Task.harvest && creep.memory.harvestTargetId === source.id;
+                        })) < _.size(utilPosition.getSourceMiningSpots(source)));
+                    })) {
+                    potentialTasks.push(self.Task.harvest);
+                }
             }
         } else {
             if (Math.random() < 0.2) {
@@ -114,9 +114,7 @@ module.exports = {
                 potentialTasks.push(self.Task.transfer);
             }
 
-            if (!_.some(potentialTasks, function (task) {
-                    return task === self.Task.transfer;
-                })) {
+            if (!_.includes(potentialTasks, self.Task.transfer)) {
                 if (_.some(structures, function (structure) {
                         return structure.hits < structure.hitsMax / 1.33;
                     })) {
@@ -376,9 +374,15 @@ module.exports = {
         var self = this;
 
         if (creep.memory.withdrawTargetId === undefined) {
-            var containers = ul.flatMap(rooms, function (room) {
+            var containers = _.filter(ul.flatMap(rooms, function (room) {
                 return utilPosition.getMiningContainers(room);
+            }), function (container) {
+                return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
             });
+            if (_.size(containers) === 0) {
+                return false;
+            }
+
             target = utilPosition.findClosestByPathMultiRoom(creep.pos, containers);
             if (target) {
                 creep.memory.withdrawTargetId = target.id;
