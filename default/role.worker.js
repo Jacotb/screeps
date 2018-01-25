@@ -113,7 +113,7 @@ module.exports = {
                 potentialTasks.push(self.Task.transfer);
             }
 
-            if (Math.random() < 0.1) {
+            if (!_.includes(potentialTasks, self.Task.transfer) || Math.random() < 0.1) {
                 var consSites = ul.flatMap(rooms, function (room) {
                     return room.find(FIND_MY_CONSTRUCTION_SITES);
                 });
