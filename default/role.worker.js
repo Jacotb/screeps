@@ -276,13 +276,13 @@ module.exports = {
                 return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN)
                     && structure.energy < structure.energyCapacity
                     && !_.some(_.filter(Game.creeps, function (gCreep) {
-                    return gCreep.memory.role === "worker"
-                        && gCreep.memory.task === self.Task.transfer
-                        && gCreep.memory.transferTargetId === structure.id
-                        && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
-                        && _.size(gCreep.pos.findPathTo(structure)) <= _.size(creep.pos.findPathTo(structure));
+                        return gCreep.memory.role === "worker"
+                            && gCreep.memory.task === self.Task.transfer
+                            && gCreep.memory.transferTargetId === structure.id
+                            && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
+                            && _.size(gCreep.pos.findPathTo(structure)) <= _.size(creep.pos.findPathTo(structure));
 
-                }));
+                    }));
             }));
             if (!target) {
                 target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
@@ -299,9 +299,9 @@ module.exports = {
                 if (target.energyCapacity - target.energy <= creep.carry.energy) {
                     _.filter(Game.creeps, function (gCreep) {
                         return gCreep.memory.role === "worker"
-                        && gCreep.memory.task === self.Task.transfer
-                        && gCreep.memory.transferTargetId === target.id
-                        && _.size(gCreep.pos.findPathTo(target)) > _.size(creep.pos.findPathTo(target));
+                            && gCreep.memory.task === self.Task.transfer
+                            && gCreep.memory.transferTargetId === target.id
+                            && _.size(gCreep.pos.findPathTo(target)) > _.size(creep.pos.findPathTo(target));
                     }).forEach(function (gCreep) {
                         delete gCreep.memory.task;
                     });
@@ -493,7 +493,7 @@ module.exports = {
             return room.find(FIND_SOURCES);
         });
         return _.first(_.sortBy(_.filter(sources, function (source) {
-                return source.energy > 0 || source.ticksToRegeneration < this.ANTICIPATE_SOURCE_REGENERATION_DURATION;
+                return ((source.energy > 0 || source.ticksToRegeneration < this.ANTICIPATE_SOURCE_REGENERATION_DURATION) && _.size(utilPosition.getSourceMiners(source)) < _.size(utilPosition.getSourceMiningSpots(source)));
             }),
             function (source) {
                 var nSpots = _.size(utilPosition.getSourceMiningSpots(source));

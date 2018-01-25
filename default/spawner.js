@@ -31,14 +31,14 @@ module.exports = {
                     return container !== undefined;
                 })) {
                 spawn.spawnCreep(this.getBody('miner', spawn), spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
-            } else if (soldiers.length < this.creepCount.soldiers * _.size(rooms)) {
+            } else if (soldiers.length < this.creepCount.soldiers) {
                 spawn.spawnCreep(this.getBody('soldier', spawn), spawn.name + "-" + Game.time, {
                     memory: {
                         role: 'soldier',
                         target: _.sample(roomNames)
                     }
                 })
-            } else if (archers.length < this.creepCount.archers * _.size(rooms)) {
+            } else if (archers.length < this.creepCount.archers) {
                 spawn.spawnCreep(this.getBody('archer', spawn), spawn.name + "-" + Game.time, {
                     memory: {
                         role: 'archer',
