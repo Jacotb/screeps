@@ -1,12 +1,15 @@
 var utilMove = require('util.move');
 var utilPosition = require('util.position');
+var ul = require('util.lang');
 
 module.exports = {
-    run: function(creep) {
+    run: function(creep, rooms) {
         var container;
         if (creep.memory.energySourceId === undefined){
             if (creep.memory.miningContainerId === undefined){
-                container = utilPosition.getFreeMiningContainer(creep.room);
+                container = _.sample(ul.flatMap(rooms, function (room) {
+                    return utilPosition.getFreeMiningContainer(room);
+                }));
                 if (container) {
                     creep.memory.miningContainerId = container.id;
                 } else {

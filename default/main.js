@@ -33,7 +33,7 @@ module.exports.loop = function () {
     for (var name in Game.creeps) {
         var creep = Game.creeps[name];
         if (creep.memory.role === 'miner') {
-            roleMiner.run(creep);
+            roleMiner.run(creep, activeRooms);
         }
         if (creep.memory.role === 'worker') {
             roleWorker.run(creep, activeRooms);

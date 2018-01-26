@@ -53,7 +53,7 @@ module.exports = {
         var max = spawn.room.energyAvailable;
         switch (creepType) {
             case 'worker':
-                return this.createBody(max, [MOVE, WORK, CARRY]);
+                return this.createBody(max, [MOVE, WORK, MOVE, CARRY, CARRY]);
             case 'soldier':
                 return this.createBody(max, [MOVE, ATTACK]);
             case 'archer':
