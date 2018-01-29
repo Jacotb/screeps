@@ -3,49 +3,65 @@ var ul = require('util.lang');
 
 module.exports = {
     creepCount: {
-        workers: 10,
-        soldiers: 3,
-        archers: 3
+        workers: 8,
+        haulers: 4,
+        soldiers: 5,
+        archers: 4
     },
 
     tick: function (spawn, rooms, roomNames) {
-        if (spawn.room.energyAvailable > spawn.room.energyCapacityAvailable * 0.8) {
-            var miners = _.filter(Game.creeps, function (creep) {
-                return creep.memory.role === 'miner'
-            });
-            var workers = _.filter(Game.creeps, function (creep) {
-                return creep.memory.role === 'worker'
-            });
-            var soldiers = _.filter(Game.creeps, function (creep) {
-                return creep.memory.role === 'soldier'
-            });
-            var archers = _.filter(Game.creeps, function (creep) {
-                return creep.memory.role === 'archer'
-            });
+        var miners = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'miner'
+        });
+        var workers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'worker'
+        });
+        var haulers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'hauler'
+        });
+        var soldiers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'soldier'
+        });
+        var archers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'archer'
+        });
 
-            if (workers.length < this.creepCount.workers && workers.length < miners.length * 3) {
-                spawn.spawnCreep(this.getBody('worker', spawn), spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
-            } else if (_.some(ul.flatMap(rooms, function (room) {
-                    return utilPosition.getFreeMiningContainer(room);
-                }), function (container) {
-                    return container !== undefined;
-                })) {
-                spawn.spawnCreep(this.getBody('miner', spawn), spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
-            } else if (soldiers.length < this.creepCount.soldiers) {
-                spawn.spawnCreep(this.getBody('soldier', spawn), spawn.name + "-" + Game.time, {
-                    memory: {
-                        role: 'soldier',
-                        target: _.sample(roomNames)
-                    }
-                })
-            } else if (archers.length < this.creepCount.archers) {
-                spawn.spawnCreep(this.getBody('archer', spawn), spawn.name + "-" + Game.time, {
-                    memory: {
-                        role: 'archer',
-                        target: _.sample(roomNames)
-                    }
-                })
-            }
+        var storages = _.filter(ul.flatMap(rooms, function(room){
+            return room.storage;
+        }), function(stor){
+            return stor !== undefined;
+        });
+
+        if (workers.length < this.creepCount.workers && (workers.length < miners.length * 3)
+            && (!_.some(storages) || workers.length < haulers.length * 3 || haulers.length >= this.creepCount.haulers * _.size(storages))) {
+            spawn.spawnCreep(this.getBody('worker', spawn), spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
+        } else if (_.some(ul.flatMap(rooms, function (room) {
+                return utilPosition.getFreeMiningContainer(room);
+            }), function (container) {
+                return container !== undefined;
+            })) {
+            spawn.spawnCreep(this.getBody('miner', spawn), spawn.name + "-" + Game.time, {memory: {role: 'miner'}});
+        } else if (haulers.length < this.creepCount.haulers * _.size(storages)) {
+            spawn.spawnCreep(this.getBody('hauler', spawn), spawn.name + "-" + Game.time, {
+                memory: {
+                    role: 'hauler',
+                    target: _.sample(storages).room
+                }
+            })
+        }  else if (soldiers.length < this.creepCount.soldiers) {
+            spawn.spawnCreep(this.getBody('soldier', spawn), spawn.name + "-" + Game.time, {
+                memory: {
+                    role: 'soldier',
+                    target: _.sample(roomNames)
+                }
+            })
+        } else if (archers.length < this.creepCount.archers) {
+            spawn.spawnCreep(this.getBody('archer', spawn), spawn.name + "-" + Game.time, {
+                memory: {
+                    role: 'archer',
+                    target: _.sample(roomNames)
+                }
+            })
         }
     },
 
@@ -54,6 +70,8 @@ module.exports = {
         switch (creepType) {
             case 'worker':
                 return this.createBody(max, [MOVE, WORK, MOVE, CARRY, CARRY]);
+            case 'hauler':
+                return this.createBody(max, [MOVE, CARRY, CARRY]);
             case 'soldier':
                 return this.createBody(max, [MOVE, ATTACK]);
             case 'archer':

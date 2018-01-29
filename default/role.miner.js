@@ -19,11 +19,13 @@ module.exports = {
             } else {
                 container = Game.getObjectById(creep.memory.miningContainerId);
                 if (!container) {
+                    delete creep.memory.energySourceId;
+                    delete creep.memory.miningContainerId;
                     creep.say('??');
                     return;
                 }
             }
-            
+
             if (!creep.pos.isEqualTo(container.pos)){
                 utilMove.run(creep, container.pos, "#999900", "⛏️");
                 return;
@@ -31,12 +33,17 @@ module.exports = {
                 creep.memory.energySourceId = creep.pos.findClosestByRange(FIND_SOURCES).id;
             }
         }
-        
+
         container = Game.getObjectById(creep.memory.miningContainerId);
+        if (!container){
+            delete creep.memory.energySourceId;
+            delete creep.memory.miningContainerId;
+            return;
+        }
         if (_.sum(container.store) >= container.storeCapacity){
             return;
         }
-        
+
         var target = Game.getObjectById(creep.memory.energySourceId);
         var result = creep.harvest(target);
         if (result === OK) {

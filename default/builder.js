@@ -6,7 +6,7 @@ module.exports = {
     },
 
     buildMiningContainers: function (room) {
-        if (room.memory.containerConstructionSitesCreated === undefined) {
+        if (Math.random() < 0.05) {
             if (_.every(utilPosition.getMiningSpots(room), function (minerSpot) {
                     if (_.every(minerSpot.lookFor(LOOK_CONSTRUCTION_SITES), function (consSite) {
                             return consSite.structureType !== STRUCTURE_CONTAINER;
@@ -18,7 +18,6 @@ module.exports = {
                         return true;
                     }
                 })) {
-                room.memory.containerConstructionSitesCreated = true;
             }
         }
     }

@@ -113,7 +113,7 @@ module.exports = {
                 potentialTasks.push(self.Task.transfer);
             }
 
-            if (!_.includes(potentialTasks, self.Task.transfer) || Math.random() < 0.1) {
+            if (!_.includes(potentialTasks, self.Task.transfer) || Math.random() < 0.4) {
                 var consSites = ul.flatMap(rooms, function (room) {
                     return room.find(FIND_MY_CONSTRUCTION_SITES);
                 });
@@ -122,8 +122,11 @@ module.exports = {
                 }
             }
 
-            if (!_.includes(potentialTasks, self.Task.transfer)) {
-                if (_.some(structures, function (structure) {
+            var allStructures = ul.flatMap(rooms, function (room) {
+                return room.find(FIND_STRUCTURES);
+            });
+            if (Math.random() < 0.2) {
+                if (_.some(allStructures, function (structure) {
                         return structure.hits < structure.hitsMax / 1.33;
                     })) {
                     potentialTasks.push(self.Task.repair);
@@ -223,10 +226,22 @@ module.exports = {
             var structures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_STRUCTURES, {
                     filter: function (structure) {
-                        return structure.hits < structure.hitsMax / 1.33;
+                        return structure.hits < structure.hitsMax / 1.33 && structure.structureType !== STRUCTURE_WALL && structure.structureType !== STRUCTURE_RAMPART;
                     }
                 });
             });
+            if (!_.some(structures)){
+                structures = ul.flatMap(rooms, function (room) {
+                    return room.find(FIND_STRUCTURES, {
+                        filter: function (structure) {
+                            return structure.hits < structure.hitsMax / 1.33;
+                        }
+                    });
+                });
+                if (!_.some(structures)){
+                    return false;
+                }
+            }
             target = utilPosition.findClosestByPathMultiRoom(creep.pos, structures);
             if (target) {
                 creep.memory.repairTargetId = target.id;
@@ -403,20 +418,35 @@ module.exports = {
         var self = this;
 
         if (creep.memory.withdrawTargetId === undefined) {
-            var containers = _.filter(ul.flatMap(rooms, function (room) {
-                return utilPosition.getMiningContainers(room);
-            }), function (container) {
-                return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
+            var storages = _.filter(ul.flatMap(rooms, function (room) {
+                return room.storage
+            }), function(storage) {
+                return storage !== undefined && storage.store[RESOURCE_ENERGY] >= creep.carryCapacity;
             });
-            if (_.size(containers) === 0) {
-                return false;
-            }
 
-            target = utilPosition.findClosestByPathMultiRoom(creep.pos, containers);
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, storages);
             if (target) {
                 creep.memory.withdrawTargetId = target.id;
             } else {
                 return false;
+            }
+
+            if (!target) {
+                var containers = _.filter(ul.flatMap(rooms, function (room) {
+                    return utilPosition.getMiningContainers(room);
+                }), function (container) {
+                    return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
+                });
+                if (_.size(containers) === 0) {
+                    return false;
+                }
+
+                target = utilPosition.findClosestByPathMultiRoom(creep.pos, containers);
+                if (target) {
+                    creep.memory.withdrawTargetId = target.id;
+                } else {
+                    return false;
+                }
             }
         } else {
             target = Game.getObjectById(creep.memory.withdrawTargetId);
