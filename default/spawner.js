@@ -3,8 +3,8 @@ var ul = require('util.lang');
 
 module.exports = {
     creepCount: {
-        workers: 8,
-        haulers: 4,
+        workers: 10,
+        haulers: 3,
         soldiers: 5,
         archers: 4
     },
@@ -33,7 +33,7 @@ module.exports = {
         });
 
         if (workers.length < this.creepCount.workers && (workers.length < miners.length * 3)
-            && (!_.some(storages) || workers.length < haulers.length * 3 || haulers.length >= this.creepCount.haulers * _.size(storages))) {
+            && (!_.some(storages) || workers.length < haulers.length * 4 || haulers.length >= this.creepCount.haulers * _.size(storages))) {
             spawn.spawnCreep(this.getBody('worker', spawn), spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
         } else if (_.some(ul.flatMap(rooms, function (room) {
                 return utilPosition.getFreeMiningContainer(room);

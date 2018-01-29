@@ -11,6 +11,7 @@ module.exports = {
             creep.say("🚧" + icon);
             return false;
         } else if (moveResult === ERR_INVALID_TARGET) {
+            creep.say('?' + icon);
             console.log("Invalid move target:", target);
             return false;
         } else {

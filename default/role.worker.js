@@ -113,7 +113,7 @@ module.exports = {
                 potentialTasks.push(self.Task.transfer);
             }
 
-            if (!_.includes(potentialTasks, self.Task.transfer) || Math.random() < 0.4) {
+            if (!_.includes(potentialTasks, self.Task.transfer) || Math.random() < 0.2) {
                 var consSites = ul.flatMap(rooms, function (room) {
                     return room.find(FIND_MY_CONSTRUCTION_SITES);
                 });
@@ -407,6 +407,8 @@ module.exports = {
             } else {
                 return false;
             }
+        } else if (result === ERR_NOT_OWNER) {
+            creep.say("📒️⛏️");
         } else {
             creep.say(result);
         }
