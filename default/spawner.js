@@ -3,10 +3,10 @@ var ul = require('util.lang');
 
 module.exports = {
     creepCount: {
-        workers: 10,
-        haulers: 3,
-        soldiers: 5,
-        archers: 4
+        workers: 12,
+        haulers: 4,
+        soldiers: 6,
+        archers: 6
     },
 
     tick: function (spawn, rooms, roomNames) {
@@ -32,8 +32,8 @@ module.exports = {
             return stor !== undefined;
         });
 
-        if (workers.length < this.creepCount.workers && (workers.length < miners.length * 3)
-            && (!_.some(storages) || workers.length < haulers.length * 4 || haulers.length >= this.creepCount.haulers * _.size(storages))) {
+        if (workers.length < this.creepCount.workers && (workers.length < (miners.length + 1) * 3)
+            && (!_.some(storages) || workers.length < (haulers.length + 1) * 3 || haulers.length >= this.creepCount.haulers * _.size(storages))) {
             spawn.spawnCreep(this.getBody('worker', spawn), spawn.name + "-" + Game.time, {memory: {role: 'worker'}})
         } else if (_.some(ul.flatMap(rooms, function (room) {
                 return utilPosition.getFreeMiningContainer(room);
@@ -69,7 +69,7 @@ module.exports = {
         var max = spawn.room.energyAvailable;
         switch (creepType) {
             case 'worker':
-                return this.createBody(max, [MOVE, WORK, MOVE, CARRY, CARRY]);
+                return this.createBody(max, [MOVE, WORK, CARRY]);
             case 'hauler':
                 return this.createBody(max, [MOVE, CARRY, CARRY]);
             case 'soldier':

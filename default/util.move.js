@@ -1,5 +1,9 @@
 module.exports = {
     run: function (creep, target, style, icon) {
+        if (Game.map.getTerrainAt(target) === 'wall'){
+            return false;
+        }
+
         var moveResult = creep.moveTo(target, {visualizePathStyle: {stroke: style}});
         if (moveResult === OK) {
             creep.say("🏃" + icon);

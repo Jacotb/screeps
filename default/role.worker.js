@@ -79,8 +79,15 @@ module.exports = {
             var containers = ul.flatMap(rooms, function (room) {
                 return utilPosition.getMiningContainers(room);
             });
+            var storages = _.filter(ul.flatMap(rooms, function (room) {
+                return room.storage;
+            }), function(storage){
+                return storage !== undefined;
+            });
             if (_.some(containers, function (container) {
                     return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
+                }) || _.some(storages, function (storage) {
+                    return storage.store[RESOURCE_ENERGY] >= creep.carryCapacity;
                 })) {
                 potentialTasks.push(self.Task.withdraw);
             }
@@ -430,10 +437,6 @@ module.exports = {
             if (target) {
                 creep.memory.withdrawTargetId = target.id;
             } else {
-                return false;
-            }
-
-            if (!target) {
                 var containers = _.filter(ul.flatMap(rooms, function (room) {
                     return utilPosition.getMiningContainers(room);
                 }), function (container) {

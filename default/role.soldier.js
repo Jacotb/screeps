@@ -42,15 +42,17 @@ module.exports = {
 
             if (!attacked) {
                 var moveTarget;
-                if (creep.memory.moveTarget === undefined) {
+                if (creep.memory.moveTarget === undefined || creep.memory.moveTarget.roomName === undefined) {
                     moveTarget = Game.rooms[creep.memory.target].getPositionAt(Math.round(Math.random() * 50), Math.round(Math.random() * 50));
                     creep.memory.moveTarget = moveTarget;
                 } else {
                     moveTarget = Game.rooms[creep.memory.moveTarget.roomName].getPositionAt(creep.memory.moveTarget.x, creep.memory.moveTarget.y);
                 }
-                var result = utilMove.run(creep, moveTarget, "#ffffff", "");
-                if (!result) {
-                    delete creep.memory.moveTarget;
+                if (!creep.pos.isEqualTo(moveTarget)) {
+                    var result = utilMove.run(creep, moveTarget, "#ffffff", "");
+                    if (!result) {
+                        delete creep.memory.moveTarget;
+                    }
                 }
             }
         } else {
