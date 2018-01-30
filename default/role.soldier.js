@@ -3,40 +3,83 @@ var utilMove = require('util.move');
 module.exports = {
     run: function (creep) {
         if (creep.room.name === creep.memory.target) {
-            var attacked = false;
+            if (creep.room.controller.my || creep.room.controller.safeMode === undefined) {
+                var attacked = false;
 
-            var nmCreeps = _.filter(creep.room.find(FIND_CREEPS), function (creep) {
-                return !creep.my;
-            });
-            target = creep.pos.findClosestByPath(nmCreeps);
-            if (!target) {
-                target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
-            }
-            if (target) {
-                result = creep.attack(target);
-                if (result === OK) {
-                    attacked = true;
-                } else if (result === ERR_NOT_IN_RANGE) {
-                    if (utilMove.run(creep, target, "#ffffff", "🔫")) {
-                        attacked = true;
-                    }
-                } else if (result === ERR_NO_BODYPART) {
-                    result = creep.rangedAttack(target);
+                var nmCreeps = _.filter(creep.room.find(FIND_CREEPS), function (creep) {
+                    return !creep.my;
+                });
+                target = creep.pos.findClosestByPath(nmCreeps);
+                if (!target) {
+                    target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+                }
+                if (target) {
+                    result = creep.attack(target);
                     if (result === OK) {
                         attacked = true;
-                    } else if (result === ERR_NO_BODYPART) {
-                        if (utilMove.run(creep, target, "#ffffff", "🔫")) {
-                            attacked = true;
-                        }
                     } else if (result === ERR_NOT_IN_RANGE) {
                         if (utilMove.run(creep, target, "#ffffff", "🔫")) {
                             attacked = true;
                         }
+                    } else if (result === ERR_NO_BODYPART) {
+                        result = creep.rangedAttack(target);
+                        if (result === OK) {
+                            attacked = true;
+                        } else if (result === ERR_NO_BODYPART) {
+                            if (utilMove.run(creep, target, "#ffffff", "🔫")) {
+                                attacked = true;
+                            }
+                        } else if (result === ERR_NOT_IN_RANGE) {
+                            if (utilMove.run(creep, target, "#ffffff", "🔫")) {
+                                attacked = true;
+                            }
+                        } else {
+                            creep.say(result);
+                        }
                     } else {
                         creep.say(result);
                     }
-                } else {
-                    creep.say(result);
+                }
+
+                if (!target) {
+                    var flags = creep.room.find(FIND_FLAGS, {
+                        filter: function (flag) {
+                            return flag.memory.destroy === true;
+                        }
+                    });
+                    if (_.some(flags)) {
+                        var flag = creep.pos.findClosestByPath(flags);
+                        var target = _.first(flag.pos.lookFor(LOOK_STRUCTURES));
+                        if (target) {
+                            result = creep.attack(target);
+                            if (result === OK) {
+                                attacked = true;
+                            } else if (result === ERR_NOT_IN_RANGE) {
+                                if (utilMove.run(creep, target, "#ffffff", "🔫")) {
+                                    attacked = true;
+                                }
+                            } else if (result === ERR_NO_BODYPART) {
+                                result = creep.rangedAttack(target);
+                                if (result === OK) {
+                                    attacked = true;
+                                } else if (result === ERR_NO_BODYPART) {
+                                    if (utilMove.run(creep, target, "#ffffff", "🔫")) {
+                                        attacked = true;
+                                    }
+                                } else if (result === ERR_NOT_IN_RANGE) {
+                                    if (utilMove.run(creep, target, "#ffffff", "🔫")) {
+                                        attacked = true;
+                                    }
+                                } else {
+                                    creep.say(result);
+                                }
+                            } else {
+                                creep.say(result);
+                            }
+                        } else {
+                            flag.remove();
+                        }
+                    }
                 }
             }
 

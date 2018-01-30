@@ -3,7 +3,7 @@ var utilPosition = require('util.position');
 var ul = require('util.lang');
 
 module.exports = {
-    Task: Object.freeze({build: 1, upgrade: 2, repair: 3, transfer: 4, harvest: 5, pickup: 6, withdraw: 7}),
+    Task: Object.freeze({build: 1, upgrade: 2, repair: 3, transfer: 4, harvest: 5, pickup: 6, withdraw: 7, dismantle: 8}),
     ANTICIPATE_SOURCE_REGENERATION_DURATION: 24,
 
     run: function (creep, rooms) {
@@ -32,6 +32,9 @@ module.exports = {
                     break;
                 case this.Task.pickup:
                     taskOngoing = this.pickup(creep, rooms);
+                    break;
+                case this.Task.dismantle:
+                    taskOngoing = this.dismantle(creep, rooms);
                     break;
                 default:
                     break;
@@ -74,6 +77,19 @@ module.exports = {
                     });
                 })) {
                 potentialTasks.push(self.Task.pickup);
+            }
+
+            var flags = _.filter(ul.flatMap(rooms, function (room) {
+                return room.find(FIND_FLAGS, {
+                    filter: function (flag) {
+                        return flag.memory.destroy === true && (flag.room.controller.my || flag.room.controller.safeMode === undefined);
+                    }
+                });
+            }), function(flag){
+                return flag !== undefined;
+            });
+            if (_.some(flags)) {
+                potentialTasks.push(self.Task.dismantle);
             }
 
             var containers = ul.flatMap(rooms, function (room) {
@@ -473,6 +489,9 @@ module.exports = {
             creep.say("😴⛽");
         } else if (result === ERR_NOT_ENOUGH_RESOURCES) {
             return false;
+        } else if (result === ERR_NOT_OWNER && target.pos.room !== creep.room) {
+            // bug if in another room
+            utilMove.run(creep, target, '#ff0000', '⛽');
         } else {
             creep.say(result);
         }
@@ -515,6 +534,58 @@ module.exports = {
             utilMove.run(creep, target, '#ff0000', '🚜');
         } else if (result === ERR_TIRED) {
             creep.say("😴🚜");
+        } else {
+            creep.say(result)
+        }
+        return true;
+    },
+
+    dismantle: function (creep, rooms) {
+        var target;
+        var self = this;
+
+        if (creep.memory.dismantleTargetId === undefined) {
+            var flags = _.filter(ul.flatMap(rooms, function (room) {
+                return room.find(FIND_FLAGS, {
+                    filter: function (flag) {
+                        return flag.memory.destroy === true;
+                    }
+                });
+            }), function(flag){
+                return flag !== undefined;
+            });
+            if (_.some(flags)) {
+                //var flag = utilPosition.findClosestByPathMultiRoom(creep.pos, flags);
+                var flag = _.first(flags);
+                target = _.first(flag.pos.lookFor(LOOK_STRUCTURES));
+                if (target) {
+                    creep.memory.dismantleTargetId = target.id;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            target = Game.getObjectById(creep.memory.dismantleTargetId);
+            if (!target) {
+                return false;
+            }
+        }
+
+        if (creep.carry.energy >= creep.carryCapacity) {
+            return false;
+        }
+
+        var result = creep.dismantle(target);
+        if (result === OK) {
+            creep.say("❌");
+        } else if (result === ERR_NOT_IN_RANGE) {
+            utilMove.run(creep, target, '#ff0000', '❌');
+        } else if (result === ERR_TIRED) {
+            creep.say("😴❌");
+        } else if (result === ERR_NO_BODYPART) {
+            return false;
         } else {
             creep.say(result)
         }
