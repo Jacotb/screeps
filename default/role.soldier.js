@@ -42,7 +42,7 @@ module.exports = {
 
             if (!attacked) {
                 var moveTarget;
-                if (creep.memory.moveTarget === undefined || creep.memory.moveTarget.roomName === undefined) {
+                if (creep.memory.moveTarget === undefined || creep.memory.moveTarget === null || creep.memory.moveTarget.roomName === undefined) {
                     moveTarget = Game.rooms[creep.memory.target].getPositionAt(Math.round(Math.random() * 50), Math.round(Math.random() * 50));
                     creep.memory.moveTarget = moveTarget;
                 } else {
