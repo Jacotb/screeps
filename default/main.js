@@ -2,6 +2,7 @@ var roleWorker = require('role.worker');
 var roleHauler = require('role.hauler');
 var roleSoldier = require('role.soldier');
 var roleMiner = require('role.miner');
+var roleClaimer = require('role.claimer');
 var towers = require('towers');
 var cleaner = require('cleaner');
 var spawner = require('spawner');
@@ -47,6 +48,9 @@ module.exports.loop = function () {
         }
         if (creep.memory.role === 'archer') {
             roleSoldier.run(creep);
+        }
+        if (creep.memory.role === 'claimer') {
+            roleClaimer.run(creep);
         }
     }
 };

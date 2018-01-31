@@ -7,15 +7,17 @@ module.exports = {
         miner: 2,
         hauler: 3,
         soldier: 4,
-        archer: 5
+        archer: 5,
+        claimer: 5
     },
 
     creepCount: {
-        workers: 12,
-        miners: 5,
-        haulers: 4,
+        workers: 15,
+        miners: 7,
+        haulers: 6,
         soldiers: 6,
-        archers: 6
+        archers: 6,
+        claimers: 2
     },
 
     tick: function (spawn, rooms, roomNames) {
@@ -33,6 +35,9 @@ module.exports = {
         });
         var archers = _.filter(Game.creeps, function (creep) {
             return creep.memory.role === 'archer'
+        });
+        var claimers = _.filter(Game.creeps, function (creep) {
+            return creep.memory.role === 'claimer'
         });
         var storages = _.filter(ul.flatMap(rooms, function(room){
             return room.storage;
@@ -56,8 +61,9 @@ module.exports = {
         if (archers.length < this.creepCount.archers && _.size(workers) >= 3) {
             availableRoles.push(this.Role.archer);
         }
-
-        console.log(availableRoles);
+        if (claimers.length < this.creepCount.claimers && _.size(workers) >= 3) {
+            availableRoles.push(this.Role.claimer);
+        }
 
         var newCreepRole = _.sample(availableRoles);
         switch(newCreepRole){
@@ -80,6 +86,10 @@ module.exports = {
             case this.Role.archer:
                 spawn.spawnCreep(this.getBody('archer', spawn), spawn.name + "-" + Game.time, {memory: {role: 'archer',
                         target: _.sample(roomNames)
+                    }});
+                break;
+            case this.Role.claimer:
+                spawn.spawnCreep(this.getBody('claimer', spawn), spawn.name + "-" + Game.time, {memory: {role: 'claimer'
                     }});
                 break;
         }
@@ -132,6 +142,8 @@ module.exports = {
                 return this.createBody(max, [MOVE, RANGED_ATTACK]);
             case 'miner':
                 return this.createBody(max, [MOVE, WORK, WORK]);
+            case 'claimer':
+                return this.createBody(max, [MOVE, CLAIM, CLAIM]);
 
         }
     },
