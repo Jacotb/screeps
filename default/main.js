@@ -10,7 +10,7 @@ var builder = require('builder');
 
 var roomNames = [
     'W79S83',
-    'W79S84'
+    'W78S83'
 ];
 
 module.exports.loop = function () {
@@ -50,7 +50,7 @@ module.exports.loop = function () {
             roleSoldier.run(creep);
         }
         if (creep.memory.role === 'claimer') {
-            roleClaimer.run(creep);
+            roleClaimer.run(creep, activeRooms);
         }
     }
 };

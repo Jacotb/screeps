@@ -3,7 +3,6 @@ var utilPosition = require('util.position');
 var ul = require('util.lang');
 
 module.exports = {
-    ownUsername: Game.structures[function() { for (var s in Game.structures) return s; }()].owner.username,
     Task: Object.freeze({reserve: 1}),
     ANTICIPATE_SOURCE_REGENERATION_DURATION: 24,
 
@@ -13,8 +12,8 @@ module.exports = {
         while (!taskOngoing) {
             iterations++;
             switch (creep.memory.task) {
-                case this.Task.withdraw:
-                    taskOngoing = this.withdraw(creep, rooms);
+                case this.Task.reserve:
+                    taskOngoing = this.reserve(creep, rooms);
                     break;
                 default:
                     break;
@@ -43,7 +42,7 @@ module.exports = {
         if (_.some(_.filter(ul.flatMap(rooms, function (room) {
                 return room.controller;
             }), function (controller) {
-                return (controller.owner === undefined && (controller.reservation === undefined || controller.reservation.username === this.ownUsername));
+                return (controller.owner === undefined && (controller.reservation === undefined || controller.reservation.username === creep.owner.username));
             }))) {
             potentialTasks.push(self.Task.reserve);
         }
@@ -59,7 +58,7 @@ module.exports = {
             var controllers = _.filter(ul.flatMap(rooms, function (room) {
                 return room.controller;
             }), function (controller) {
-                return (controller.owner === undefined && (controller.reservation === undefined || controller.reservation.username === this.ownUsername));
+                return (controller.owner === undefined && (controller.reservation === undefined || controller.reservation.username === creep.owner.username));
             });
 
             if (_.some(controllers)) {
