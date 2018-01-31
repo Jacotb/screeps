@@ -110,10 +110,10 @@ module.exports = {
 
             if (!_.includes(potentialTasks, self.Task.withdraw)) {
                 var sources = ul.flatMap(rooms, function (room) {
-                    return room.find(FIND_SOURCES);
+                    return room.find(FIND_SOURCES)
                 });
                 if (_.some(sources, function (source) {
-                        return (_.size(utilPosition.getSourceMiners(source)) + _.size(_.filter(Game.creeps, function (creep) {
+                        return ((source.room.controller.my || source.room.controller.safeMode === undefined) && _.size(utilPosition.getSourceMiners(source)) + _.size(_.filter(Game.creeps, function (creep) {
                             return creep.memory.task === self.Task.harvest && creep.memory.harvestTargetId === source.id;
                         })) < _.size(utilPosition.getSourceMiningSpots(source)));
                     })) {
@@ -432,6 +432,7 @@ module.exports = {
             }
         } else if (result === ERR_NOT_OWNER) {
             creep.say("📒️⛏️");
+            return false;
         } else {
             creep.say(result);
         }
