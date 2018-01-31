@@ -75,14 +75,26 @@ module.exports = {
             }
         }
 
-        var result = creep.reserveController(target);
+        var result = creep.claimController(target);
         if (result === OK) {
             creep.say("⚔️");
         } else if (result === ERR_NOT_IN_RANGE) {
             utilMove.run(creep, target, '#aa0000', '⚔️');
         } else if (result === ERR_TIRED) {
             creep.say("😴⚔️");
-        } else {
+        } else if (result === ERR_GCL_NOT_ENOUGH) {
+            result = creep.reserveController(target);
+            if (result === OK) {
+                creep.say("⚔️");
+            } else if (result === ERR_NOT_IN_RANGE) {
+                utilMove.run(creep, target, '#aa0000', '⚔️');
+            } else if (result === ERR_TIRED) {
+                creep.say("😴⚔️");
+            } else {
+                creep.say(result)
+            }
+            return true;
+        }  else {
             creep.say(result)
         }
         return true;

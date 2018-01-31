@@ -8,7 +8,7 @@ module.exports = {
         hauler: 3,
         soldier: 4,
         archer: 5,
-        claimer: 5
+        claimer: 6
     },
 
     creepCount: {
@@ -44,12 +44,17 @@ module.exports = {
         }), function(stor){
             return stor !== undefined;
         });
+        var freeMiningContainers = _.filter(ul.flatMap(rooms, function(room){
+            return utilPosition.getFreeMiningContainer(room);
+        }), function(container){
+            return container !== undefined;
+        });
 
         var availableRoles = [];
         if (workers.length < this.creepCount.workers) {
             availableRoles.push(this.Role.worker);
         }
-        if (miners.length < this.creepCount.miners && _.size(workers) >= 3) {
+        if (miners.length < this.creepCount.miners && _.size(workers) >= 3 && _.some(freeMiningContainers)) {
             availableRoles.push(this.Role.miner);
         }
         if (haulers.length < this.creepCount.haulers && _.size(workers) >= 3 && _.size(miners) >= 1) {
