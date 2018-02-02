@@ -63,7 +63,7 @@ module.exports = {
                     availableRoles.push({role: this.Role.worker, relSize: (_.size(workers) / self.creepCount.workers)});
                 }
                 if (miners.length < this.creepCount.miners && _.size(workers) >= 3 && _.some(freeMiningContainers)) {
-                    availableRoles.push({role: this.Role.miner, relSize: (_.size(miners) / self.creepCount.miners)});
+                    availableRoles.push({role: this.Role.miner, relSize: Math.min((_.size(miners) / self.creepCount.miners), 0.25)});
                 }
                 if (haulers.length < this.creepCount.haulers && _.size(workers) >= 3 && _.size(miners) >= 1) {
                     availableRoles.push({role: this.Role.hauler, relSize: (_.size(haulers) / self.creepCount.haulers)});
@@ -101,7 +101,7 @@ module.exports = {
                         spawn.spawnCreep(this.getBody('soldier', spawn, maxSize), spawn.name + "-" + Game.time, {
                             memory: {
                                 role: 'soldier',
-                                target: _.sample(roomNames)
+                                target: _.sample(roomNames.concat(['W79S84'],['W79S84']))
                             }
                         });
                         break;
@@ -109,7 +109,7 @@ module.exports = {
                         spawn.spawnCreep(this.getBody('archer', spawn, maxSize), spawn.name + "-" + Game.time, {
                             memory: {
                                 role: 'archer',
-                                target: _.sample(roomNames)
+                                target: _.sample(roomNames.concat(['W79S84'],['W79S84']))
                             }
                         });
                         break;
@@ -152,7 +152,9 @@ module.exports = {
             testBody.push(sequence[sequenceI]);
             sequenceI = (sequenceI + 1) % sequence.length;
         }
-        return body;
+        return _.sortBy(body, function(part) {
+          return BODYPART_COST[part];
+        });
     },
 
     bodyCost: function (body) {

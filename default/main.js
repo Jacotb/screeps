@@ -11,7 +11,7 @@ var builder = require('builder');
 var roomNames = [
     'W79S83',
     'W78S83',
-    //'W79S84'
+    'W79S84'
 ];
 
 module.exports.loop = function () {
@@ -45,10 +45,10 @@ module.exports.loop = function () {
             roleHauler.run(creep, activeRooms);
         }
         if (creep.memory.role === 'soldier') {
-            roleSoldier.run(creep);
+            roleSoldier.run(creep, activeRooms);
         }
         if (creep.memory.role === 'archer') {
-            roleSoldier.run(creep);
+            roleSoldier.run(creep, activeRooms);
         }
         if (creep.memory.role === 'claimer') {
             roleClaimer.run(creep, activeRooms);
