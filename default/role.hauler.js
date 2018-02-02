@@ -78,8 +78,11 @@ module.exports = {
             });
 
             target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
-                return (structure.structureType === STRUCTURE_STORAGE)
-                    && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
+                return (
+                    (structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity)
+                    || (structure.structureType === STRUCTURE_SPAWN && structure.energy < structure.energyCapacity)
+                    || (structure.structureType === STRUCTURE_EXTENSION && structure.energy < structure.energyCapacity)
+                );
             }));
             if (!target) {
                 target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {

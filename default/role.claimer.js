@@ -42,7 +42,7 @@ module.exports = {
         if (_.some(_.filter(ul.flatMap(rooms, function (room) {
                 return room.controller;
             }), function (controller) {
-                return (controller.owner === undefined && (controller.reservation === undefined || controller.reservation.username === creep.owner.username));
+                return (!controller.my);
             }))) {
             potentialTasks.push(self.Task.reserve);
         }
@@ -58,7 +58,7 @@ module.exports = {
             var controllers = _.filter(ul.flatMap(rooms, function (room) {
                 return room.controller;
             }), function (controller) {
-                return (controller.owner === undefined && (controller.reservation === undefined || controller.reservation.username === creep.owner.username));
+                return !controller.my;
             });
 
             if (_.some(controllers)) {
@@ -82,7 +82,11 @@ module.exports = {
         } else if (result === ERR_TIRED) {
             creep.say("😴⚔️");
         } else if (result === ERR_GCL_NOT_ENOUGH) {
-            result = creep.reserveController(target);
+            if (target.owner === undefined && (target.reservation === undefined || target.reservation.username === creep.owner.username)){
+                result = creep.reserveController(target);
+            } else if (!target.my){
+                result = creep.attackController(target);
+            }
             if (result === OK) {
                 creep.say("⚔️");
             } else if (result === ERR_NOT_IN_RANGE) {

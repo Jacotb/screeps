@@ -449,26 +449,19 @@ module.exports = {
             }), function(storage) {
                 return storage !== undefined && storage.store[RESOURCE_ENERGY] >= creep.carryCapacity;
             });
+            var containers = _.filter(ul.flatMap(rooms, function (room) {
+                return _.filter(room.find(FIND_STRUCTURES), function(structure) {
+                    return structure.structureType === STRUCTURE_CONTAINER;
+                });
+            }), function(container) {
+                return container !== undefined && container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
+            });
 
-            target = utilPosition.findClosestByPathMultiRoom(creep.pos, storages);
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, storages.concat(containers));
             if (target) {
                 creep.memory.withdrawTargetId = target.id;
             } else {
-                var containers = _.filter(ul.flatMap(rooms, function (room) {
-                    return utilPosition.getMiningContainers(room);
-                }), function (container) {
-                    return container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
-                });
-                if (_.size(containers) === 0) {
-                    return false;
-                }
-
-                target = utilPosition.findClosestByPathMultiRoom(creep.pos, containers);
-                if (target) {
-                    creep.memory.withdrawTargetId = target.id;
-                } else {
-                    return false;
-                }
+                return false;
             }
         } else {
             target = Game.getObjectById(creep.memory.withdrawTargetId);
