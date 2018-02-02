@@ -2,7 +2,7 @@ var utilMove = require('util.move');
 
 module.exports = {
     run: function (creep) {
-        if (creep.room.name === creep.memory.target) {
+        if (creep.room.name === creep.memory.target || _.some(creep.room.find(FIND_HOSTILE_CREEPS))) {
             if (creep.room.controller.my || creep.room.controller.safeMode === undefined) {
                 var attacked = false;
 
