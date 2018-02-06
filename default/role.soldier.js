@@ -6,7 +6,7 @@ module.exports = {
     run: function (creep, rooms) {
         var attacked = false;
 
-        if (creep.room.controller.my || creep.room.controller.safeMode === undefined) {
+        if (creep.room.controller === undefined || creep.room.controller.my || creep.room.controller.safeMode === undefined) {
             var nmCreeps = _.filter(ul.flatMap(rooms, function (room) {
                 return room.find(FIND_HOSTILE_CREEPS);
             }), function (creep) {
@@ -49,10 +49,13 @@ module.exports = {
                 } else {
                     creep.say(result);
                 }
-            } else if (target instanceof Flag) {
+            } else if (target instanceof Flag && !_.some(_.filter(Game.creeps, function (gCreep) {
+                    return gCreep.memory.destroyTargetId === target.id || gCreep.memory.dismantleTargetId === target.id;
+                }))) {
                 var flag = utilPosition.findClosestByPathMultiRoom(creep.pos, flags);
                 var target = _.first(flag.pos.lookFor(LOOK_STRUCTURES));
                 if (target) {
+                    creep.memory.destroyTargetId = target.id;
                     result = creep.attack(target);
                     if (result === OK) {
                         attacked = true;
@@ -87,10 +90,18 @@ module.exports = {
         if (!attacked) {
             var moveTarget;
             if (creep.memory.moveTarget === undefined || creep.memory.moveTarget === null || creep.memory.moveTarget.roomName === undefined) {
-                moveTarget = Game.rooms[creep.memory.target].getPositionAt(Math.round(Math.random() * 50), Math.round(Math.random() * 50));
+                if (Game.rooms[creep.memory.target]){
+                    moveTarget = Game.rooms[creep.memory.target].getPositionAt(Math.round(Math.random() * 50), Math.round(Math.random() * 50));
+                } else {
+                    moveTarget = _.first(creep.room.find(creep.room.findExitTo(creep.memory.target)));
+                }
                 creep.memory.moveTarget = moveTarget;
             } else {
-                moveTarget = Game.rooms[creep.memory.moveTarget.roomName].getPositionAt(creep.memory.moveTarget.x, creep.memory.moveTarget.y);
+                if (Game.rooms[creep.memory.moveTarget.roomName]){
+                    moveTarget = Game.rooms[creep.memory.moveTarget.roomName].getPositionAt(creep.memory.moveTarget.x, creep.memory.moveTarget.y);
+                } else {
+                    moveTarget = _.first(creep.room.find(creep.room.findExitTo(creep.memory.moveTarget.roomName)));
+                }
             }
             if (!creep.pos.isEqualTo(moveTarget)) {
                 var result = utilMove.run(creep, moveTarget, "#ffffff", "");

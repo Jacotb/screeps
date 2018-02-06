@@ -130,7 +130,7 @@ module.exports = {
             });
             if (_.some(structures, function (structure) {
                     return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
+                        return (gCreep.memory.role === "worker" || gCreep.memory.role === "hauler") && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
                     }));
                 })) {
                 potentialTasks.push(self.Task.transfer);
@@ -148,7 +148,7 @@ module.exports = {
             var allStructures = ul.flatMap(rooms, function (room) {
                 return room.find(FIND_STRUCTURES);
             });
-            if (Math.random() < 0.2) {
+            if (Math.random() < 0.4) {
                 if (_.some(allStructures, function (structure) {
                         return structure.hits < structure.hitsMax / 1.33;
                     })) {
@@ -314,7 +314,7 @@ module.exports = {
                 return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN)
                     && structure.energy < structure.energyCapacity
                     && !_.some(_.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker"
+                        return (gCreep.memory.role === "worker" || gCreep.memory.role === "hauler")
                             && gCreep.memory.task === self.Task.transfer
                             && gCreep.memory.transferTargetId === structure.id
                             && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
@@ -325,7 +325,7 @@ module.exports = {
             if (!target) {
                 target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
                     return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker"
+                        return (gCreep.memory.role === "worker" || gCreep.memory.role === "hauler")
                             && gCreep.memory.task === self.Task.transfer
                             && gCreep.memory.transferTargetId === structure.id
                             && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
@@ -336,10 +336,9 @@ module.exports = {
             if (target) {
                 if (target.energyCapacity - target.energy <= creep.carry.energy) {
                     _.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker"
+                        return (gCreep.memory.role === "worker" || gCreep.memory.role === "hauler")
                             && gCreep.memory.task === self.Task.transfer
-                            && gCreep.memory.transferTargetId === target.id
-                            && _.size(gCreep.pos.findPathTo(target)) > _.size(creep.pos.findPathTo(target));
+                            && gCreep.memory.transferTargetId === target.id;
                     }).forEach(function (gCreep) {
                         delete gCreep.memory.task;
                     });
@@ -550,9 +549,11 @@ module.exports = {
             });
             if (_.some(flags)) {
                 //var flag = utilPosition.findClosestByPathMultiRoom(creep.pos, flags);
-                var flag = _.first(flags);
+                var flag = _.sample(flags);
                 target = _.first(flag.pos.lookFor(LOOK_STRUCTURES));
-                if (target) {
+                if (target && !_.some(_.filter(Game.creeps, function (gCreep) {
+                        return gCreep.memory.destroyTargetId === target.id || gCreep.memory.dismantleTargetId === target.id;
+                    }))) {
                     creep.memory.dismantleTargetId = target.id;
                 } else {
                     return false;

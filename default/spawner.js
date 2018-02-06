@@ -12,18 +12,18 @@ module.exports = {
     },
 
     creepCount: {
-        workers: 12,
-        miners: 7,
-        haulers: 6,
-        soldiers: 10,
+        workers: 10,
+        miners: 10,
+        haulers: 14,
+        soldiers: 8,
         archers: 8,
-        claimers: 2
+        claimers: 1
     },
 
     tick: function (spawn, rooms, roomNames) {
 
         var self = this;
-        if (spawn.room.energyAvailable >= 150) {
+        if (spawn.room.energyAvailable >= 150 && !spawn.spawning) {
             var workers = _.filter(Game.creeps, function (creep) {
                 return creep.memory.role === 'worker'
             });
@@ -56,32 +56,32 @@ module.exports = {
 
             var availableRoles = [];
             if (_.some(hostiles)) {
-                availableRoles.push({role: this.Role.soldier, relSize: (_.size(soldiers) / self.creepCount.soldiers)});
-                availableRoles.push({role: this.Role.archer, relSize: (_.size(archers) / self.creepCount.archers)});
+                availableRoles.push({role: this.Role.soldier, relSize: (_.size(soldiers) / Math.max(self.creepCount.soldiers - 1, 1))});
+                availableRoles.push({role: this.Role.archer, relSize: (_.size(archers) / Math.max(self.creepCount.archers - 1, 1))});
             } else {
                 if (workers.length < this.creepCount.workers) {
-                    availableRoles.push({role: this.Role.worker, relSize: (_.size(workers) / self.creepCount.workers)});
+                    availableRoles.push({role: this.Role.worker, relSize: (_.size(workers) / Math.max(self.creepCount.workers - 1, 1))});
                 }
                 if (miners.length < this.creepCount.miners && _.size(workers) >= 3 && _.some(freeMiningContainers)) {
-                    availableRoles.push({role: this.Role.miner, relSize: Math.min((_.size(miners) / self.creepCount.miners), 0.25)});
+                    availableRoles.push({role: this.Role.miner, relSize: Math.min((_.size(miners) / Math.max(self.creepCount.miners - 1, 1)), 0.25)});
                 }
                 if (haulers.length < this.creepCount.haulers && _.size(workers) >= 3 && _.size(miners) >= 1) {
-                    availableRoles.push({role: this.Role.hauler, relSize: (_.size(haulers) / self.creepCount.haulers)});
+                    availableRoles.push({role: this.Role.hauler, relSize: (_.size(haulers) / Math.max(self.creepCount.haulers - 1, 1))});
                 }
                 if (soldiers.length < this.creepCount.soldiers && _.size(workers) >= 3) {
-                    availableRoles.push({role: this.Role.soldier, relSize: (_.size(soldiers) / self.creepCount.soldiers)});
+                    availableRoles.push({role: this.Role.soldier, relSize: (_.size(soldiers) / Math.max(self.creepCount.soldiers - 1, 1))});
                 }
                 if (archers.length < this.creepCount.archers && _.size(workers) >= 3) {
-                    availableRoles.push({role: this.Role.archer, relSize: (_.size(archers) / self.creepCount.archers)});
+                    availableRoles.push({role: this.Role.archer, relSize: (_.size(archers) / Math.max(self.creepCount.archers - 1, 1))});
                 }
                 if (claimers.length < this.creepCount.claimers && _.size(workers) >= 3) {
-                    availableRoles.push({role: this.Role.claimer, relSize: (_.size(claimers) / self.creepCount.claimers)});
+                    availableRoles.push({role: this.Role.claimer, relSize: (_.size(claimers) / Math.max(self.creepCount.claimers - 1, 1))});
                 }
             }
 
             if (_.some(availableRoles)) {
                 var newCreepRole = _.sample(availableRoles);
-                var maxSize = newCreepRole.relSize * spawn.room.energyCapacityAvailable;
+                var maxSize = Math.max(newCreepRole.relSize * spawn.room.energyCapacityAvailable, spawn.room.energyAvailable);
                 switch (newCreepRole.role) {
                     case this.Role.worker:
                         spawn.spawnCreep(this.getBody('worker', spawn, maxSize), spawn.name + "-" + Game.time, {memory: {role: 'worker'}});
@@ -101,7 +101,7 @@ module.exports = {
                         spawn.spawnCreep(this.getBody('soldier', spawn, maxSize), spawn.name + "-" + Game.time, {
                             memory: {
                                 role: 'soldier',
-                                target: _.sample(roomNames.concat(['W79S84'],['W79S84']))
+                                target: _.sample(roomNames)
                             }
                         });
                         break;
@@ -109,7 +109,7 @@ module.exports = {
                         spawn.spawnCreep(this.getBody('archer', spawn, maxSize), spawn.name + "-" + Game.time, {
                             memory: {
                                 role: 'archer',
-                                target: _.sample(roomNames.concat(['W79S84'],['W79S84']))
+                                target: _.sample(roomNames)
                             }
                         });
                         break;
@@ -153,7 +153,7 @@ module.exports = {
             sequenceI = (sequenceI + 1) % sequence.length;
         }
         return _.sortBy(body, function(part) {
-          return BODYPART_COST[part];
+            return BODYPART_COST[part];
         });
     },
 

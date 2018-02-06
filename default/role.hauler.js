@@ -87,7 +87,7 @@ module.exports = {
             if (!target) {
                 target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
                     return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker"
+                        return (gCreep.memory.role === "worker" || gCreep.memory.role === "hauler")
                             && gCreep.memory.task === self.Task.transfer
                             && gCreep.memory.transferTargetId === structure.id
                             && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy
@@ -98,10 +98,9 @@ module.exports = {
             if (target) {
                 if (target.energyCapacity - target.energy <= creep.carry.energy) {
                     _.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker"
+                        return (gCreep.memory.role === "worker" || gCreep.memory.role === "hauler")
                             && gCreep.memory.task === self.Task.transfer
-                            && gCreep.memory.transferTargetId === target.id
-                            && _.size(gCreep.pos.findPathTo(target)) > _.size(creep.pos.findPathTo(target));
+                            && gCreep.memory.transferTargetId === target.id;
                     }).forEach(function (gCreep) {
                         delete gCreep.memory.task;
                     });
