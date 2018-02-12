@@ -20,9 +20,9 @@ module.exports = {
         objects.forEach(function (obj) {
             if (obj.pos.roomName !== pos.roomName) {
                 if (obj instanceof Flag){
-                    dists[obj.name] = PathFinder.search(pos, obj.pos).cost;
+                    dists[obj.name] = Game.map.getRoomLinearDistance(obj.pos.roomName, pos.roomName) * 50;
                 } else {
-                    dists[obj.id] = PathFinder.search(pos, obj.pos).cost;
+                    dists[obj.id] = Game.map.getRoomLinearDistance(obj.pos.roomName, pos.roomName) * 50;
                 }
             } else {
                 if (obj instanceof Flag){
