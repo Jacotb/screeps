@@ -19,14 +19,31 @@ module.exports = {
         var dists = {};
         objects.forEach(function (obj) {
             if (obj.pos.roomName !== pos.roomName) {
-                dists[obj.id] = PathFinder.search(pos, obj.pos).cost;
+                if (obj instanceof Flag){
+                    dists[obj.name] = PathFinder.search(pos, obj.pos).cost;
+                } else {
+                    dists[obj.id] = PathFinder.search(pos, obj.pos).cost;
+                }
             } else {
-                dists[obj.id] = _.size(pos.findPathTo(obj.pos));
+                if (obj instanceof Flag){
+                    dists[obj.name] = _.size(pos.findPathTo(obj.pos));
+                } else {
+                    dists[obj.id] = _.size(pos.findPathTo(obj.pos));
+                }
             }
         });
-        return Game.getObjectById(_.min(_.keys(dists), function (k) {
+        var closest = _.min(_.keys(dists), function (k) {
             return dists[k];
-        }));
+        });
+        var closestById = Game.getObjectById(closest);
+        if (closestById){
+            return closestById;
+        }
+        var closestByFlagName = Game.flags[closest];
+        if (closestByFlagName){
+            return closestByFlagName;
+        }
+        return null;
     },
 
     getSourceMiningSpots: function (source) {
@@ -54,11 +71,11 @@ module.exports = {
     getMiningSpots: function (room) {
         var self = this;
         if (room.memory.minerSpots === undefined) {
-            room.memory.minerSpots = _.map([].concat.apply([], _.map(room.find(FIND_SOURCES), function (source) {
-                return _.filter(self.neighbours(source.pos), function (neighbour) {
+            room.memory.minerSpots = _.map(_.map(room.find(FIND_SOURCES), function (source) {
+                return _.first(_.filter(self.neighbours(source.pos), function (neighbour) {
                     return neighbour.lookFor(LOOK_TERRAIN) !== 'wall';
-                });
-            })), function (pos) {
+                }));
+            }), function (pos) {
                 return {x: pos.x, y: pos.y};
             });
         }

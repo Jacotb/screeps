@@ -11,7 +11,8 @@ var builder = require('builder');
 var roomNames = [
     'W79S83',
     'W78S83',
-    'W79S84'
+    'W79S84',
+    //'W78S82'
 ];
 
 module.exports.loop = function () {

@@ -21,7 +21,7 @@ module.exports = {
                 }
             });
             var targets = nmCreeps.concat(nmStructures).concat(flags);
-            target = utilPosition.findClosestByPathMultiRoom(creep.pos, targets);
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.takeRight(targets, 8));
 
             if (target instanceof Creep || target instanceof Structure) {
                 result = creep.attack(target);

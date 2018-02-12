@@ -57,9 +57,15 @@ module.exports = {
                 return room.find(FIND_MY_STRUCTURES);
             });
             if (_.some(structures, function (structure) {
-                    return structure.energy < structure.energyCapacity && !_.some(_.filter(Game.creeps, function (gCreep) {
-                        return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
-                    }));
+                    return ((structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity)
+                        || (
+                            (structure.structureType === STRUCTURE_SPAWN && structure.energy < structure.energyCapacity)
+                            || (structure.structureType === STRUCTURE_EXTENSION && structure.energy < structure.energyCapacity)
+                            || (structure.structureType === STRUCTURE_TOWER && structure.energy < structure.energyCapacity)
+                        ))
+                        && !_.some(_.filter(Game.creeps, function (gCreep) {
+                            return gCreep.memory.role === "worker" && gCreep.memory.task === self.Task.transfer && gCreep.memory.transferTargetId === structure.id && (structure.energyCapacity - structure.energy) <= gCreep.carry.energy;
+                        }));
                 })) {
                 potentialTasks.push(self.Task.transfer);
             }
@@ -82,6 +88,7 @@ module.exports = {
                     (structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity)
                     || (structure.structureType === STRUCTURE_SPAWN && structure.energy < structure.energyCapacity)
                     || (structure.structureType === STRUCTURE_EXTENSION && structure.energy < structure.energyCapacity)
+                    || (structure.structureType === STRUCTURE_TOWER && structure.energy < structure.energyCapacity)
                 );
             }));
             if (!target) {

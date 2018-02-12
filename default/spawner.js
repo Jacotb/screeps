@@ -12,12 +12,12 @@ module.exports = {
     },
 
     creepCount: {
-        workers: 10,
-        miners: 10,
-        haulers: 14,
-        soldiers: 8,
+        workers: 8,
+        miners: 8,
+        haulers: 8,
+        soldiers: 6,
         archers: 8,
-        claimers: 1
+        claimers: 4
     },
 
     tick: function (spawn, rooms, roomNames) {

@@ -45,7 +45,7 @@ module.exports = {
                 this.resetTaskMemory(creep);
             }
 
-            if (iterations > 3) {
+            if (iterations > 1) {
                 creep.say('no task');
                 break;
             }
@@ -165,9 +165,9 @@ module.exports = {
         var self = this;
 
         if (creep.memory.buildTargetId === undefined) {
-            var consSites = ul.flatMap(rooms, function (room) {
+            var consSites = _.take(ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_CONSTRUCTION_SITES);
-            });
+            }), 8);
             target = utilPosition.findClosestByPathMultiRoom(creep.pos, consSites);
             if (target) {
                 creep.memory.buildTargetId = target.id;
@@ -189,7 +189,7 @@ module.exports = {
         if (result === OK) {
             creep.say("🏗️");
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#0000ff', '🏗️');
+            return utilMove.run(creep, target, '#0000ff', '🏗️');
         } else if (result === ERR_INVALID_TARGET) {
             creep.room.lookForAt(LOOK_CREEPS, target.pos.x, target.pos.y).forEach(function (blocker) {
                 blocker.move(_.sample([TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT]))
@@ -232,7 +232,7 @@ module.exports = {
         if (result === OK) {
             creep.say("⬆️");
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#0000ff', '⬆️');
+            return utilMove.run(creep, target, '#0000ff', '⬆️');
         } else if (result === ERR_TIRED) {
             creep.say("😴⬆️");
         } else {
@@ -246,13 +246,13 @@ module.exports = {
         var self = this;
 
         if (creep.memory.repairTargetId === undefined) {
-            var structures = ul.flatMap(rooms, function (room) {
+            var structures = _.take(ul.flatMap(rooms, function (room) {
                 return room.find(FIND_STRUCTURES, {
                     filter: function (structure) {
                         return structure.hits < structure.hitsMax / 1.33 && structure.structureType !== STRUCTURE_WALL && structure.structureType !== STRUCTURE_RAMPART;
                     }
                 });
-            });
+            }), 8);
             if (!_.some(structures)){
                 structures = ul.flatMap(rooms, function (room) {
                     return room.find(FIND_STRUCTURES, {
@@ -290,7 +290,7 @@ module.exports = {
         if (result === OK) {
             creep.say("🔧");
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#00ff00', '🔧');
+            return utilMove.run(creep, target, '#00ff00', '🔧');
         } else if (result === ERR_TIRED) {
             creep.say("😴🔧");
         } else if (result === ERR_INVALID_TARGET) {
@@ -306,9 +306,9 @@ module.exports = {
         var self = this;
 
         if (creep.memory.transferTargetId === undefined) {
-            var structures = ul.flatMap(rooms, function (room) {
+            var structures = _.take(ul.flatMap(rooms, function (room) {
                 return room.find(FIND_MY_STRUCTURES);
-            });
+            }), 8);
 
             target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.filter(structures, function (structure) {
                 return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN)
@@ -366,7 +366,7 @@ module.exports = {
         if (result === OK) {
             creep.say("🎁");
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#aa0000', '🎁');
+            return utilMove.run(creep, target, '#aa0000', '🎁');
         } else if (result === ERR_TIRED) {
             creep.say("😴🎁");
         } else {
@@ -425,7 +425,7 @@ module.exports = {
             creep.say("😴️⛏️");
         } else if (result === ERR_NOT_ENOUGH_RESOURCES) {
             if (target.ticksToRegeneration < this.ANTICIPATE_SOURCE_REGENERATION_DURATION) {
-                utilMove.run(creep, target, '#ff0000', '️⛏️');
+                return utilMove.run(creep, target, '#ff0000', '️⛏️');
             } else {
                 return false;
             }
@@ -456,7 +456,7 @@ module.exports = {
                 return container !== undefined && container.store[RESOURCE_ENERGY] >= creep.carryCapacity;
             });
 
-            target = utilPosition.findClosestByPathMultiRoom(creep.pos, storages.concat(containers));
+            target = utilPosition.findClosestByPathMultiRoom(creep.pos, _.take(storages.concat(containers), 8));
             if (target) {
                 creep.memory.withdrawTargetId = target.id;
             } else {
@@ -477,14 +477,14 @@ module.exports = {
         if (result === OK) {
             creep.say('⛽');
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#ff0000', '⛽');
+            return utilMove.run(creep, target, '#ff0000', '⛽');
         } else if (result === ERR_TIRED) {
             creep.say("😴⛽");
         } else if (result === ERR_NOT_ENOUGH_RESOURCES) {
             return false;
         } else if (result === ERR_NOT_OWNER && target.pos.room !== creep.room) {
             // bug if in another room
-            utilMove.run(creep, target, '#ff0000', '⛽');
+            return utilMove.run(creep, target, '#ff0000', '⛽');
         } else {
             creep.say(result);
         }
@@ -524,7 +524,7 @@ module.exports = {
         if (result === OK) {
             creep.say("🚜");
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#ff0000', '🚜');
+            return utilMove.run(creep, target, '#ff0000', '🚜');
         } else if (result === ERR_TIRED) {
             creep.say("😴🚜");
         } else {
@@ -576,7 +576,7 @@ module.exports = {
         if (result === OK) {
             creep.say("❌");
         } else if (result === ERR_NOT_IN_RANGE) {
-            utilMove.run(creep, target, '#ff0000', '❌');
+            return utilMove.run(creep, target, '#ff0000', '❌');
         } else if (result === ERR_TIRED) {
             creep.say("😴❌");
         } else if (result === ERR_NO_BODYPART) {
