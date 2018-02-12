@@ -142,3 +142,4 @@ fabric.properties
 
 screeps.json
 dist/
+.rpt2_cache/
