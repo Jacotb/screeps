@@ -1,13 +1,12 @@
-interface StructureSpawn {
-    buildSupplyLines(visibleRooms: Room[]): void;
-
-    run(): void;
-}
+import {Task} from "./tasks/task";
+import {TaskMaster} from "./task_master";
 
 StructureSpawn.prototype.run = function () {
     if (Game.time % 100 == 0) {
         this.buildSupplyLines(_.values<Room>(Game.rooms));
     }
+
+    this.spawnCreepForTask(TaskMaster.getCreepLessTask());
 };
 
 StructureSpawn.prototype.buildSupplyLines = function (visibleRooms: Room[]) {
@@ -34,5 +33,13 @@ StructureSpawn.prototype.buildSupplyLines = function (visibleRooms: Room[]) {
                 }
             });
         })
+    });
+};
+
+StructureSpawn.prototype.spawnCreepForTask = function (task: Task){
+    this.spawnCreep(task.bodyParts(), `${this.name}-${Game.time}`, {
+        memory: {
+            task: task.serialize()
+        }
     });
 };

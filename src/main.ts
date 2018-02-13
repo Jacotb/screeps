@@ -2,11 +2,15 @@ import {ErrorMapper} from "utils/ErrorMapper";
 import {Builder} from "./entities/builder";
 import "./entities/room";
 import "./entities/spawn";
+import "./entities/creep";
+import "./entities/structure";
+import "./entities/room_position";
+import "./entities/source";
 import {StructureSpawnStatic} from "./entities/static/spawn_static";
 import {MemoryCleaner} from "./entities/memory_cleaner";
+import {CreepStatic} from "./entities/static/creep_static";
+import {TaskMaster} from "./entities/task_master";
 
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
     console.log(`Current game tick is ${Game.time}`);
 
@@ -16,5 +20,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     StructureSpawnStatic.getAll().forEach(spawn => {
         spawn.run();
+    });
+
+    TaskMaster.run();
+
+    CreepStatic.getAll().forEach(creep => {
+        creep.run();
     });
 });
