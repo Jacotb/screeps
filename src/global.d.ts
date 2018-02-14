@@ -11,6 +11,8 @@ declare global {
         getTask(): Task | null;
 
         removeTask(): void;
+
+        isIdle(): boolean;
     }
 
     interface CreepMemory {
@@ -22,6 +24,8 @@ declare global {
         getSources(): Source[];
 
         getOwnEnergyStructures(): Structure[];
+
+        getOwnConstructionSites(): ConstructionSite[];
 
         planRoadCostMatrix(costMatrix: CostMatrix): CostMatrix;
     }

@@ -15,11 +15,11 @@ export class HarvestTask extends Task {
         return new HarvestTask(Game.getObjectById(data.source) as Source, new RoomPosition(data.spot.x, data.spot.y, data.spot.roomName));
     }
 
-    public bodyParts(): BodyPartConstant[] {
+    public bodyParts() {
         return [MOVE, WORK, CARRY];
     }
 
-    public eligibleCreeps(): Creep[] {
+    public eligibleCreeps() {
         return super.eligibleCreeps().filter(creep => {
             return creep.carry.energy == 0;
         });
@@ -39,6 +39,10 @@ export class HarvestTask extends Task {
 
             }
         }
+    }
+
+    public startPoint(){
+        return this.source.pos;
     }
 
     public static findAll(): HarvestTask[] {

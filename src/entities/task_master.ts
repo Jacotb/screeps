@@ -2,15 +2,27 @@ import {Task} from "./tasks/task";
 import {MineTask} from "./tasks/mine_task";
 import {HarvestTask} from "./tasks/harvest_task";
 import {SupplyTask} from "./tasks/supply_task";
+import {BuildTask} from "./tasks/build_task";
 
 export class TaskMaster {
     private static availableTasks: Task[] = [];
 
     static run(): void {
-        _.shuffle(this.getAvailableTasks()).forEach(task => {
-            const creep = _.sample(task.eligibleCreeps());
-            if (creep){
-                _.sample(task.eligibleCreeps()).setTask(task);
+        this.getAvailableTasks().filter(task => {
+            return _.some(task.eligibleCreeps());
+        }).map(task => {
+            return {
+                task, creepRange: _.first(task.eligibleCreeps().map(creep => {
+                    return {creep, range: creep.pos.getRangeTo(task.startPoint())};
+                }).sortBy(creepRange => {
+                    return creepRange.range;
+                }))
+            };
+        }).sortBy(taskCreepRange => {
+            return taskCreepRange.creepRange.range
+        }).forEach(taskCreepRange => {
+            if (taskCreepRange.creepRange.creep.isIdle()) {
+                taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
             }
         });
     }
@@ -30,15 +42,18 @@ export class TaskMaster {
         return this.availableTasks;
     }
 
-    public static getCreepLessTask() {
-        return _.sample(this.getGroupedTasks().values().next().value) as Task;
+    public static getCreepLessTask(spot: RoomPosition): Task {
+        return _.first((this.getGroupedTasks().values().next().value as Task[]).sortBy(task => {
+            return spot.getRangeTo(task.startPoint());
+        }));
     }
 
     public static taskTypes() {
         return [
             HarvestTask,
             MineTask,
-            SupplyTask
+            SupplyTask,
+            BuildTask
         ];
     }
 }

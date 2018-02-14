@@ -6,7 +6,7 @@ StructureSpawn.prototype.run = function () {
         this.buildSupplyLines(_.values<Room>(Game.rooms));
     }
 
-    this.spawnCreepForTask(TaskMaster.getCreepLessTask());
+    this.spawnCreepForTask(TaskMaster.getCreepLessTask(this.pos));
 };
 
 StructureSpawn.prototype.buildSupplyLines = function (visibleRooms: Room[]) {

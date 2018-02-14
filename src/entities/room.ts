@@ -25,3 +25,7 @@ Room.prototype.getOwnEnergyStructures = function () {
 
     });
 };
+
+Room.prototype.getOwnConstructionSites = function(){
+    return this.find(FIND_MY_CONSTRUCTION_SITES);
+};

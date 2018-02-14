@@ -31,6 +31,10 @@ export class MineTask extends Task {
         }
     }
 
+    public startPoint(){
+        return this.source.pos;
+    }
+
     public static findAll(): MineTask[] {
         return RoomStatic.visibleRooms()
             .flatMap(room => room.getSources())

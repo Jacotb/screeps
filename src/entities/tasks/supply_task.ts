@@ -46,15 +46,13 @@ export class SupplyTask extends Task {
         }
     }
 
+    public startPoint(){
+        return this.target.pos;
+    }
+
     public static findAll(): SupplyTask[] {
         return RoomStatic.visibleRooms()
             .flatMap(room => room.getOwnEnergyStructures())
-            .filter(structure => {
-                return (structure.structureType == STRUCTURE_EXTENSION && (<StructureExtension>structure).energy < (<StructureExtension>structure).energyCapacity)
-                    || (structure.structureType == STRUCTURE_TOWER && (<StructureTower>structure).energy < (<StructureTower>structure).energyCapacity)
-                    || (structure.structureType == STRUCTURE_SPAWN && (<StructureSpawn>structure).energy < (<StructureSpawn>structure).energyCapacity)
-                    || structure.structureType == STRUCTURE_STORAGE && _.sum((<StructureStorage>structure).store) < (<StructureStorage>structure).storeCapacity;
-            })
             .map(structure => {
                 let missingEnergy = 0;
                 switch (structure.structureType) {
@@ -80,7 +78,13 @@ export class SupplyTask extends Task {
                         return creep.carry.energy;
                     });
 
-                return new SupplyTask(structure, RESOURCE_ENERGY, missingEnergy);
+                return {structure, missingEnergy};
+            })
+            .filter(structureWithMissingEnergy => {
+                return structureWithMissingEnergy.missingEnergy > 0;
+            })
+            .map(structureWithMissingEnergy => {
+                return new SupplyTask(structureWithMissingEnergy.structure, RESOURCE_ENERGY, structureWithMissingEnergy.missingEnergy);
             });
     }
 

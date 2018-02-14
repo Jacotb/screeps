@@ -14,4 +14,6 @@ export abstract class Task {
     };
 
     public abstract serialize(): any;
+
+    public abstract startPoint(): RoomPosition;
 }

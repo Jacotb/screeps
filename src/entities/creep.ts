@@ -24,7 +24,7 @@ Creep.prototype.getTask = function (): Task | null {
     }
 
     for (let taskType of TaskMaster.taskTypes()) {
-        if (this.memory.task.type == (taskType as any).name){
+        if (this.memory.task.type == (taskType as any).name) {
             return taskType.deserialize(this.memory.task);
         }
     }
@@ -34,4 +34,9 @@ Creep.prototype.getTask = function (): Task | null {
 
 Creep.prototype.removeTask = function () {
     delete this.memory.task;
+};
+
+
+Creep.prototype.isIdle = function () {
+    return this.getTask() == null;
 };
