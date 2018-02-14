@@ -25,6 +25,8 @@ declare global {
 
         getOwnEnergyStructures(): Structure[];
 
+        getContainers(): StructureContainer[];
+
         getOwnConstructionSites(): ConstructionSite[];
 
         planRoadCostMatrix(costMatrix: CostMatrix): CostMatrix;

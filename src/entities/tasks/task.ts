@@ -4,7 +4,7 @@ export abstract class Task {
     public abstract bodyParts(): BodyPartConstant[];
 
     public eligibleCreeps(): Creep[] {
-        return CreepStatic.findAllByBodyParts(this.bodyParts()).filter(creep => creep.getTask() === null);
+        return CreepStatic.findAllByBodyParts(this.bodyParts()).filter(creep => creep.isIdle());
     }
 
     public abstract run(creep: Creep): void;

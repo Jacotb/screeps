@@ -31,13 +31,35 @@ export class HarvestTask extends Task {
             return;
         }
 
-        const success = creep.harvest(this.source);
-        if (success !== OK) {
-            const move = creep.moveTo(this.spot);
-            if (move !== OK) {
-                creep.say(move + "");
-
-            }
+        switch (creep.harvest(this.source)) {
+            case OK:
+            case ERR_TIRED:
+                break;
+            case ERR_NOT_IN_RANGE:
+                switch (creep.moveTo(this.source)) {
+                    case OK:
+                    case ERR_TIRED:
+                        break;
+                    case ERR_NOT_OWNER:
+                    case ERR_BUSY:
+                    case ERR_NO_BODYPART:
+                    case ERR_NO_PATH:
+                    case ERR_INVALID_TARGET:
+                    case ERR_NOT_FOUND:
+                        creep.say('stop');
+                        creep.removeTask();
+                        break;
+                }
+                break;
+            case ERR_NOT_OWNER:
+            case ERR_BUSY:
+            case ERR_INVALID_TARGET:
+            case ERR_NO_BODYPART:
+            case ERR_NOT_FOUND:
+            case ERR_NOT_ENOUGH_RESOURCES:
+                creep.say('quit');
+                creep.removeTask();
+                break;
         }
     }
 

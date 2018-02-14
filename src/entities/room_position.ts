@@ -27,11 +27,11 @@ RoomPosition.prototype.isBlocked = function () {
 };
 
 RoomPosition.prototype.isOccupied = function () {
-    return _.some(_.values(Game.creeps) as Creep[], creep => creep.pos == this);
-}
-
-
+    return _.some(_.values(Game.creeps) as Creep[], creep => {
+        return creep.pos.isEqualTo(this);
+    });
+};
 
 RoomPosition.prototype.toString = function() {
     return `${this.getRoom().name}(${this.x},${this.y})`;
-}
+};

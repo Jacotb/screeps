@@ -26,6 +26,12 @@ Room.prototype.getOwnEnergyStructures = function () {
     });
 };
 
+Room.prototype.getContainers = function () {
+    return this.find(FIND_STRUCTURES).filter((structure: Structure) => {
+        return structure.structureType == STRUCTURE_CONTAINER;
+    });
+};
+
 Room.prototype.getOwnConstructionSites = function(){
     return this.find(FIND_MY_CONSTRUCTION_SITES);
 };

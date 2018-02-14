@@ -6,12 +6,11 @@ Creep.prototype.run = function () {
         return;
     }
 
-    const task = this.getTask();
-    if (!task) {
+    if (this.isIdle()) {
         return;
     }
 
-    task.run(this);
+    (<Task>this.getTask()).run(this);
 };
 
 Creep.prototype.setTask = function (task: Task) {

@@ -1,46 +1,47 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
-import {SupplyTask} from "./supply_task";
 
-export class BuildTask extends Task {
-    public constructor(public target: ConstructionSite) {
+export class WithdrawTask extends Task {
+    public constructor(public source: Structure, public resourceType: ResourceConstant, public amount: number) {
         super();
     }
 
     public serialize() {
         return {
             type: (this.constructor as any).name,
-            target: this.target.id
+            source: this.source.id,
+            resourceType: this.resourceType
         }
     }
 
     public static deserialize(data: any) {
-        return new BuildTask(Game.getObjectById(data.target) as ConstructionSite);
+        return new WithdrawTask(Game.getObjectById(data.source) as Structure, data.resourceType as ResourceConstant, data.amount);
     }
 
     public bodyParts(): BodyPartConstant[] {
-        return [MOVE, CARRY, WORK];
+        return [MOVE, CARRY, CARRY];
     }
 
     public eligibleCreeps(): Creep[] {
         return super.eligibleCreeps().filter(creep => {
-            return creep.carry.energy > 0;
+            return creep.carry.energy == 0;
         });
     }
 
     public run(creep: Creep) {
-        if (creep.carry.energy == 0) {
+        if (creep.carry.energy > 0) {
             creep.removeTask();
             return;
         }
 
-        switch (creep.build(this.target)) {
+
+        switch (creep.withdraw(this.source, this.resourceType, Math.min(creep.carryCapacity, this.amount))) {
             case OK:
             case ERR_TIRED:
                 break;
             case ERR_NOT_IN_RANGE:
-                switch (creep.moveTo(this.target)) {
+                switch (creep.moveTo(this.source)) {
                     case OK:
                     case ERR_TIRED:
                         break;
@@ -59,7 +60,16 @@ export class BuildTask extends Task {
             case ERR_BUSY:
             case ERR_INVALID_TARGET:
             case ERR_NO_BODYPART:
+            case ERR_NOT_FOUND:
+            case ERR_NOT_ENOUGH_RESOURCES:
+            case ERR_NO_PATH:
+            case ERR_NAME_EXISTS:
+            case ERR_NOT_ENOUGH_ENERGY:
+            case ERR_FULL:
+            case ERR_INVALID_ARGS:
+            case ERR_NOT_ENOUGH_EXTENSIONS:
             case ERR_RCL_NOT_ENOUGH:
+            case ERR_GCL_NOT_ENOUGH:
                 creep.say('quit');
                 creep.removeTask();
                 break;
@@ -67,34 +77,24 @@ export class BuildTask extends Task {
     }
 
     public startPoint() {
-        return this.target.pos;
+        return this.source.pos;
     }
 
-    public static findAll(): BuildTask[] {
+    public static findAll(): WithdrawTask[] {
         return RoomStatic.visibleRooms()
-            .flatMap(room => room.getOwnConstructionSites())
-            .map(constructionSite => {
-                let missingEnergy = constructionSite.progressTotal - constructionSite.progress;
-
-                missingEnergy -= CreepStatic.findAllByTask((BuildTask as any).name)
-                    .filter(creep => {
-                        return (<BuildTask>creep.getTask()).target == constructionSite;
-                    })
-                    .sum(creep => {
-                        return creep.carry.energy;
-                    });
-
-                return {constructionSite, missingEnergy};
+            .flatMap(room => room.getContainers())
+            .map(container => {
+                return {container, amount: container.store[RESOURCE_ENERGY]};
             })
-            .filter(constructionSiteWithMissingEnergy => {
-                return constructionSiteWithMissingEnergy.missingEnergy > 0;
+            .filter(containerAmount => {
+                return containerAmount.amount > 0;
             })
-            .map(constructionSiteWithMissingEnergy => {
-                return new BuildTask(constructionSiteWithMissingEnergy.constructionSite);
+            .map(containerAmount => {
+                return new WithdrawTask(containerAmount.container, RESOURCE_ENERGY, containerAmount.amount);
             });
     }
 
     public toString = (): string => {
-        return `${(this.constructor as any).name}(${this.target})`;
+        return `${(this.constructor as any).name}(${this.source})`;
     }
 }

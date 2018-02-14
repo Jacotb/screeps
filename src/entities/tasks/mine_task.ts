@@ -19,15 +19,66 @@ export class MineTask extends Task {
         return [MOVE, WORK];
     }
 
+    public eligibleCreeps() {
+        return super.eligibleCreeps().filter(creep => {
+            return !_.some(creep.body, bodyDef => {
+                return bodyDef.type == CARRY;
+            });
+        });
+    }
+
     public run(creep: Creep) {
         if (creep.carryCapacity > 0) {
             creep.removeTask();
             return;
         }
 
-        const success = creep.harvest(this.source);
-        if (!success) {
-            creep.moveTo(this.spot);
+        if (!creep.pos.isEqualTo(this.spot)){
+            switch (creep.moveTo(this.spot)) {
+                case OK:
+                case ERR_TIRED:
+                    break;
+                case ERR_NOT_OWNER:
+                case ERR_BUSY:
+                case ERR_NO_BODYPART:
+                case ERR_NO_PATH:
+                case ERR_INVALID_TARGET:
+                case ERR_NOT_FOUND:
+                    creep.say('stop');
+                    creep.removeTask();
+                    break;
+            }
+        }
+
+        switch (creep.harvest(this.source)) {
+            case OK:
+            case ERR_TIRED:
+                break;
+            case ERR_NOT_IN_RANGE:
+                switch (creep.moveTo(this.spot)) {
+                    case OK:
+                    case ERR_TIRED:
+                        break;
+                    case ERR_NOT_OWNER:
+                    case ERR_BUSY:
+                    case ERR_NO_BODYPART:
+                    case ERR_NO_PATH:
+                    case ERR_INVALID_TARGET:
+                    case ERR_NOT_FOUND:
+                        creep.say('stop');
+                        creep.removeTask();
+                        break;
+                }
+                break;
+            case ERR_NOT_OWNER:
+            case ERR_BUSY:
+            case ERR_INVALID_TARGET:
+            case ERR_NO_BODYPART:
+            case ERR_NOT_FOUND:
+            case ERR_NOT_ENOUGH_RESOURCES:
+                creep.say('quit');
+                creep.removeTask();
+                break;
         }
     }
 
