@@ -19,6 +19,12 @@ export class HarvestTask extends Task {
         return [MOVE, WORK, CARRY];
     }
 
+    public eligibleCreeps(): Creep[] {
+        return super.eligibleCreeps().filter(creep => {
+            return creep.carry.energy == 0;
+        });
+    }
+
     public run(creep: Creep) {
         if (creep.carry.energy >= creep.carryCapacity) {
             creep.removeTask();
@@ -27,7 +33,6 @@ export class HarvestTask extends Task {
 
         const success = creep.harvest(this.source);
         if (success !== OK) {
-            console.log(this.spot);
             const move = creep.moveTo(this.spot);
             if (move !== OK) {
                 creep.say(move + "");

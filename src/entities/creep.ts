@@ -1,6 +1,5 @@
 import {Task} from "./tasks/task";
-import {HarvestTask} from "./tasks/harvest_task";
-import {MineTask} from "./tasks/mine_task";
+import {TaskMaster} from "./task_master";
 
 Creep.prototype.run = function () {
     if (this.spawning) {
@@ -24,11 +23,10 @@ Creep.prototype.getTask = function (): Task | null {
         return null;
     }
 
-    switch (this.memory.task.type) {
-        case (HarvestTask as any).name:
-            return HarvestTask.deserialize(this.memory.task);
-        case (MineTask as any).name:
-            return MineTask.deserialize(this.memory.task);
+    for (let taskType of TaskMaster.taskTypes()) {
+        if (this.memory.task.type == (taskType as any).name){
+            return taskType.deserialize(this.memory.task);
+        }
     }
 
     return null;

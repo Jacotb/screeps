@@ -1,5 +1,11 @@
+import {CreepStatic} from "../static/creep_static";
+
 export abstract class Task {
     public abstract bodyParts(): BodyPartConstant[];
+
+    public eligibleCreeps(): Creep[] {
+        return CreepStatic.findAllByBodyParts(this.bodyParts()).filter(creep => creep.getTask() === null);
+    }
 
     public abstract run(creep: Creep): void;
 
@@ -9,4 +15,3 @@ export abstract class Task {
 
     public abstract serialize(): any;
 }
-

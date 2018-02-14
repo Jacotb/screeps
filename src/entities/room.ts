@@ -11,3 +11,17 @@ Room.prototype.planRoadCostMatrix = function (costMatrix: CostMatrix) {
         });
     return costMatrix;
 };
+
+Room.prototype.getOwnEnergyStructures = function () {
+    return this.find(FIND_STRUCTURES).filter((structure: Structure) => {
+        return ((structure.isOwned() && structure.my)
+            || !structure.isOwned())
+            && (
+                structure.structureType == STRUCTURE_STORAGE
+                || structure.structureType == STRUCTURE_EXTENSION
+                || structure.structureType == STRUCTURE_TOWER
+                || structure.structureType == STRUCTURE_SPAWN
+            )
+
+    });
+};

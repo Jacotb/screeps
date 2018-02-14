@@ -16,3 +16,7 @@ Structure.prototype.isBlocker = function () {
         || this.structureType == STRUCTURE_POWER_SPAWN
         || this.structureType == STRUCTURE_TERMINAL;
 };
+
+Structure.prototype.isOwned = function () {
+    return (<AnyOwnedStructure>this).owner !== undefined;
+};

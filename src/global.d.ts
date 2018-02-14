@@ -21,6 +21,8 @@ declare global {
     interface Room {
         getSources(): Source[];
 
+        getOwnEnergyStructures(): Structure[];
+
         planRoadCostMatrix(costMatrix: CostMatrix): CostMatrix;
     }
 
@@ -42,6 +44,8 @@ declare global {
 
     interface Structure {
         isBlocker(): boolean;
+
+        isOwned(): this is AnyOwnedStructure;
     }
 
 
