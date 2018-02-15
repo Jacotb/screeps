@@ -71,7 +71,7 @@ export class BuildTask extends Task {
     }
 
     public static findAll(): BuildTask[] {
-        return RoomStatic.visibleRooms()
+        return _.take(RoomStatic.visibleRooms()
             .flatMap(room => room.getOwnConstructionSites())
             .map(constructionSite => {
                 let missingEnergy = constructionSite.progressTotal - constructionSite.progress;
@@ -91,7 +91,7 @@ export class BuildTask extends Task {
             })
             .map(constructionSiteWithMissingEnergy => {
                 return new BuildTask(constructionSiteWithMissingEnergy.constructionSite);
-            });
+            }), 4);
     }
 
     public toString = (): string => {

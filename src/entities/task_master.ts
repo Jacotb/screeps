@@ -5,6 +5,7 @@ import {SupplyTask} from "./tasks/supply_task";
 import {BuildTask} from "./tasks/build_task";
 import {WithdrawTask} from "./tasks/withdraw_task";
 import {UpgradeTask} from "./tasks/upgrade_task";
+import {AttackTask} from "./tasks/attack_task";
 
 export class TaskMaster {
     private static availableTasks: Task[] = [];
@@ -27,8 +28,9 @@ export class TaskMaster {
         }).forEach((taskCreepRange, index) => {
             if (taskCreepRange.creepRange.creep.isIdle()) {
                 taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
-                this.availableTasks.splice(index, 1);
-
+                if (!taskCreepRange.task.isRepeatable()) {
+                    this.availableTasks.splice(index, 1);
+                }
             }
         });
     }
@@ -57,7 +59,8 @@ export class TaskMaster {
             SupplyTask,
             BuildTask,
             WithdrawTask,
-            UpgradeTask
+            UpgradeTask,
+            AttackTask
         ];
     }
 }

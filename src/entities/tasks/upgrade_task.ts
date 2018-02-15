@@ -96,6 +96,10 @@ export class UpgradeTask extends Task {
             });
     }
 
+    public isRepeatable(){
+        return true;
+    }
+
     public toString = (): string => {
         return `${(this.constructor as any).name}(${this.target})`;
     }

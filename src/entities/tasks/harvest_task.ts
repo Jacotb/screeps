@@ -1,6 +1,7 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
+import {MineTask} from "./mine_task";
 
 export class HarvestTask extends Task {
     public constructor(public source: Source, public spot: RoomPosition) {
@@ -71,7 +72,7 @@ export class HarvestTask extends Task {
         return RoomStatic.visibleRooms()
             .flatMap(room => room.getSources())
             .filter(source => {
-                return _.some(source.getHarvestSpots(), spot => {
+                return _.all(source.getHarvestSpots(), spot => {
                     return !spot.isBlocked() && !spot.isOccupied()
                         && !_.some(CreepStatic.getAll().filter(creep => {
                             const task = creep.getTask();
@@ -86,7 +87,7 @@ export class HarvestTask extends Task {
             .map(source => new HarvestTask(source, _.sample(_.filter(source.getHarvestSpots(), spot => !spot.isBlocked() && !spot.isOccupied()
                 && !_.some(CreepStatic.getAll().filter(creep => {
                     const task = creep.getTask();
-                    if (!task || !(task instanceof HarvestTask)) {
+                    if (!task || (!(task instanceof HarvestTask) && !(task instanceof MineTask))) {
                         return false;
                     }
 
