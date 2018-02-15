@@ -1,3 +1,14 @@
+import {Collection} from "../utils/collection";
+import range = Collection.range;
+
+Room.prototype.getAllSpots = function () {
+    return range(0, 49).flatMap(x => {
+        return range(0, 49).map(y => {
+            return this.getPositionAt(x, y);
+        });
+    });
+};
+
 Room.prototype.getSources = function () {
     return this.find(FIND_SOURCES);
 };
@@ -32,6 +43,25 @@ Room.prototype.getContainers = function () {
     });
 };
 
-Room.prototype.getOwnConstructionSites = function(){
+Room.prototype.getExtensions = function () {
+    return this.find(FIND_STRUCTURES).filter((structure: Structure) => {
+        return structure.structureType == STRUCTURE_EXTENSION;
+    });
+};
+
+Room.prototype.findExtensionSpot = function (closeTo: RoomPosition) {
+    return _.first((<RoomPosition[]>this.getAllSpots()).filter(spot => {
+        return spot.x >= 2 && spot.x <= 47 && spot.y >= 2 && spot.y <= 47
+            && !spot.isBlocked() && !spot.hasRoad() && _.all(spot.getStraightNeighbours(), neighbour => {
+                return !neighbour.isBlocked() && !neighbour.hasRoad() && _.all(neighbour.getStraightNeighbours(), neighboursNeighbours => {
+                    !neighboursNeighbours.isBlocked();
+                });
+            });
+    }).sort((spotA, spotB) => {
+        return closeTo.getRangeTo(spotA) - closeTo.getRangeTo(spotB);
+    }));
+};
+
+Room.prototype.getOwnConstructionSites = function () {
     return this.find(FIND_MY_CONSTRUCTION_SITES);
 };

@@ -21,11 +21,17 @@ declare global {
 
 
     interface Room {
+        getAllSpots(): RoomPosition[];
+
         getSources(): Source[];
 
         getOwnEnergyStructures(): Structure[];
 
         getContainers(): StructureContainer[];
+
+        getExtensions(): StructureExtension[];
+
+        findExtensionSpot(closeTo: RoomPosition): RoomPosition;
 
         getOwnConstructionSites(): ConstructionSite[];
 
@@ -37,7 +43,11 @@ declare global {
 
         getNeighbours(): RoomPosition[];
 
+        getStraightNeighbours(): RoomPosition[];
+
         isBlocked(): boolean;
+
+        hasRoad(): boolean;
 
         isOccupied(): boolean;
     }
@@ -59,6 +69,8 @@ declare global {
         buildSupplyLines(visibleRooms: Room[]): void;
 
         buildControllerSupplyLines(visibleRooms: Room[]): void;
+
+        buildExtensions(): void;
 
         spawnCreepForTask(task: Task): void;
 

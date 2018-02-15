@@ -5,6 +5,7 @@ StructureSpawn.prototype.run = function () {
     if (Game.time % 100 == 0) {
         this.buildSupplyLines(_.values<Room>(Game.rooms));
         this.buildControllerSupplyLines(_.values<Room>(Game.rooms));
+        this.buildExtensions();
     }
 
     this.spawnCreepForTask(TaskMaster.getCreepLessTask(this.pos));
@@ -64,6 +65,27 @@ StructureSpawn.prototype.buildControllerSupplyLines = function (visibleRooms) {
             }
         });
     });
+};
+
+StructureSpawn.prototype.buildExtensions = function () {
+    if (_.size(this.room.getExtensions()) <= CONTROLLER_STRUCTURES["extension"][(<StructureController>this.room.controller).level] - 5){
+        const spot = this.room.findExtensionSpot(this.pos);
+        if (spot){
+            this.room.createConstructionSite(spot, STRUCTURE_EXTENSION);
+            spot.getStraightNeighbours().forEach(neighbour => {
+                this.room.createConstructionSite(neighbour, STRUCTURE_EXTENSION);
+            });
+            this.room.createConstructionSite(spot.x, spot.y - 2, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x + 1, spot.y - 1, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x + 2, spot.y, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x + 1, spot.y + 1, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x, spot.y + 2, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x - 1, spot.y + 1, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x - 2, spot.y, STRUCTURE_ROAD);
+            this.room.createConstructionSite(spot.x - 1, spot.y - 1, STRUCTURE_ROAD);
+        }
+    }
+
 };
 
 StructureSpawn.prototype.spawnCreepForTask = function (task) {

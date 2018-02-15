@@ -28,6 +28,7 @@ export class TaskMaster {
             if (taskCreepRange.creepRange.creep.isIdle()) {
                 taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
                 this.availableTasks.splice(index, 1);
+
             }
         });
     }
