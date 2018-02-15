@@ -81,17 +81,36 @@ export class WithdrawTask extends Task {
     }
 
     public static findAll(): WithdrawTask[] {
-        return RoomStatic.visibleRooms()
-            .flatMap(room => room.getContainers())
-            .map(container => {
+        const containers = RoomStatic.visibleRooms()
+            .flatMap(room => room.getContainers());
+
+        if (_.some(containers)) {
+            return containers.map(container => {
                 return {container, amount: container.store[RESOURCE_ENERGY]};
             })
-            .filter(containerAmount => {
-                return containerAmount.amount > 0;
+                .filter(containerAmount => {
+                    return containerAmount.amount > 0;
+                })
+                .map(containerAmount => {
+                    return new WithdrawTask(containerAmount.container, RESOURCE_ENERGY, containerAmount.amount);
+                });
+        } else {
+            const storages = <StructureStorage[]>RoomStatic.visibleRooms()
+                .map(room => room.storage)
+                .filter(storage => {
+                    return storage !== undefined;
+                });
+
+            return storages.map(storage => {
+                return {storage, amount: storage.store[RESOURCE_ENERGY]};
             })
-            .map(containerAmount => {
-                return new WithdrawTask(containerAmount.container, RESOURCE_ENERGY, containerAmount.amount);
-            });
+                .filter(storageAmount => {
+                    return storageAmount.amount > 0;
+                })
+                .map(storageAmount => {
+                    return new WithdrawTask(storageAmount.storage, RESOURCE_ENERGY, storageAmount.amount);
+                });
+        }
     }
 
     public toString = (): string => {

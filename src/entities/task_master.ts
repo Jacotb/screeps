@@ -4,6 +4,7 @@ import {HarvestTask} from "./tasks/harvest_task";
 import {SupplyTask} from "./tasks/supply_task";
 import {BuildTask} from "./tasks/build_task";
 import {WithdrawTask} from "./tasks/withdraw_task";
+import {UpgradeTask} from "./tasks/upgrade_task";
 
 export class TaskMaster {
     private static availableTasks: Task[] = [];
@@ -23,9 +24,10 @@ export class TaskMaster {
             };
         }).sortBy(taskCreepRange => {
             return taskCreepRange.creepRange.range
-        }).forEach(taskCreepRange => {
+        }).forEach((taskCreepRange, index) => {
             if (taskCreepRange.creepRange.creep.isIdle()) {
                 taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
+                this.availableTasks.splice(index, 1);
             }
         });
     }
@@ -55,7 +57,8 @@ export class TaskMaster {
             MineTask,
             SupplyTask,
             BuildTask,
-            WithdrawTask
+            WithdrawTask,
+            UpgradeTask
         ];
     }
 }

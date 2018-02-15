@@ -58,7 +58,13 @@ declare global {
     interface StructureSpawn {
         buildSupplyLines(visibleRooms: Room[]): void;
 
+        buildControllerSupplyLines(visibleRooms: Room[]): void;
+
         spawnCreepForTask(task: Task): void;
+
+        getBody(component: BodyPartConstant[]): BodyPartConstant[];
+
+        bodyCost(body: BodyPartConstant[]): number;
 
         run(): void;
     }
