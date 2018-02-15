@@ -50,16 +50,18 @@ Room.prototype.getExtensions = function () {
 };
 
 Room.prototype.findExtensionSpot = function (closeTo: RoomPosition) {
-    return _.first((<RoomPosition[]>this.getAllSpots()).filter(spot => {
+    const spots = _.first((<RoomPosition[]>this.getAllSpots()).filter(spot => {
         return spot.x >= 2 && spot.x <= 47 && spot.y >= 2 && spot.y <= 47
-            && !spot.isBlocked() && !spot.hasRoad() && _.all(spot.getStraightNeighbours(), neighbour => {
-                return !neighbour.isBlocked() && !neighbour.hasRoad() && _.all(neighbour.getStraightNeighbours(), neighboursNeighbours => {
-                    !neighboursNeighbours.isBlocked();
+            && !spot.isBlocked() && !spot.hasRoad() && !spot.hasConstructionSite() && _.all(spot.getStraightNeighbours(), neighbour => {
+                return !neighbour.isBlocked() && !neighbour.hasRoad() && !neighbour.hasConstructionSite() && _.all(neighbour.getStraightNeighbours(), neighboursNeighbour => {
+                    return !neighboursNeighbour.isBlocked() && (!neighboursNeighbour.hasConstructionSite() || neighboursNeighbour.hasRoadConstructionSite());
                 });
             });
     }).sort((spotA, spotB) => {
         return closeTo.getRangeTo(spotA) - closeTo.getRangeTo(spotB);
     }));
+    console.log('spots', spots);
+    return spots;
 };
 
 Room.prototype.getOwnConstructionSites = function () {

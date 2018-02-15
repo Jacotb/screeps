@@ -68,9 +68,11 @@ StructureSpawn.prototype.buildControllerSupplyLines = function (visibleRooms) {
 };
 
 StructureSpawn.prototype.buildExtensions = function () {
-    if (_.size(this.room.getExtensions()) <= CONTROLLER_STRUCTURES["extension"][(<StructureController>this.room.controller).level] - 5){
+    if (_.size(this.room.getExtensions())
+        + _.size(this.room.getOwnConstructionSites().filter(site => site.structureType == STRUCTURE_EXTENSION))
+        <= CONTROLLER_STRUCTURES["extension"][(<StructureController>this.room.controller).level] - 5) {
         const spot = this.room.findExtensionSpot(this.pos);
-        if (spot){
+        if (spot) {
             this.room.createConstructionSite(spot, STRUCTURE_EXTENSION);
             spot.getStraightNeighbours().forEach(neighbour => {
                 this.room.createConstructionSite(neighbour, STRUCTURE_EXTENSION);

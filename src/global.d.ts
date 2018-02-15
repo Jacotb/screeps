@@ -38,6 +38,7 @@ declare global {
         planRoadCostMatrix(costMatrix: CostMatrix): CostMatrix;
     }
 
+
     interface RoomPosition {
         getRoom(): Room;
 
@@ -48,6 +49,10 @@ declare global {
         isBlocked(): boolean;
 
         hasRoad(): boolean;
+
+        hasConstructionSite(): boolean;
+
+        hasRoadConstructionSite(): boolean;
 
         isOccupied(): boolean;
     }

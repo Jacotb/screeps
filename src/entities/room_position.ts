@@ -37,6 +37,14 @@ RoomPosition.prototype.hasRoad = function () {
     return _.some(this.lookFor(LOOK_STRUCTURES), structure => structure.structureType == STRUCTURE_ROAD);
 };
 
+RoomPosition.prototype.hasConstructionSite = function () {
+    return _.some(this.lookFor(LOOK_CONSTRUCTION_SITES), constructionSite => constructionSite !== undefined);
+};
+
+RoomPosition.prototype.hasRoadConstructionSite = function () {
+    return _.some(this.lookFor(LOOK_CONSTRUCTION_SITES), constructionSite => constructionSite !== undefined && constructionSite.structureType == STRUCTURE_ROAD);
+};
+
 RoomPosition.prototype.isOccupied = function () {
     return _.some(_.values(Game.creeps) as Creep[], creep => {
         return creep.pos.isEqualTo(this);
