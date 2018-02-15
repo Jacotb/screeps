@@ -38,6 +38,10 @@ StructureSpawn.prototype.buildSupplyLines = function (visibleRooms) {
 };
 
 StructureSpawn.prototype.buildControllerSupplyLines = function (visibleRooms) {
+    this.pos.getNeighbours().forEach(spot => {
+        this.room.createConstructionSite(spot, STRUCTURE_ROAD);
+    });
+
     visibleRooms.filter(room => {
         return room.controller && room.controller.my;
     }).forEach(room => {
@@ -63,17 +67,17 @@ StructureSpawn.prototype.buildControllerSupplyLines = function (visibleRooms) {
 };
 
 StructureSpawn.prototype.spawnCreepForTask = function (task) {
-    this.spawnCreep(this.getBody(task.bodyParts()), `${this.name}-${Game.time}`, {
+    this.spawnCreep(this.createBody(task.bodyParts()), `${this.name}-${Game.time}`, {
         memory: {
             task: task.serialize()
         }
     });
 };
 
-StructureSpawn.prototype.getBody = function (component) {
+StructureSpawn.prototype.createBody = function (component) {
     let body = component;
     let testBody = body;
-    while (this.bodyCost(testBody) <= this.energy) {
+    while (this.bodyCost(testBody) <= this.room.energyCapacityAvailable) {
         body = testBody;
         testBody = testBody.concat(component);
     }

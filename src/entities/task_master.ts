@@ -16,14 +16,14 @@ export class TaskMaster {
             return _.some(taskCreeps.creeps);
         }).map(taskCreeps => {
             return {
-                task: taskCreeps.task, creepRange: _.first(taskCreeps.creeps.map(creep => {
+                task: taskCreeps.task, creepRange: _.sample(taskCreeps.creeps.map(creep => {
                     return {creep, range: creep.pos.getRangeTo(taskCreeps.task.startPoint())};
-                }).sortBy(creepRange => {
-                    return creepRange.range;
+                }).sort((creepRangeA, creepRangeB) => {
+                    return creepRangeA.range - creepRangeB.range;
                 }))
             };
-        }).sortBy(taskCreepRange => {
-            return taskCreepRange.creepRange.range
+        }).sort((taskCreepRangeA, taskCreepRangeB) => {
+            return taskCreepRangeA.creepRange.range - taskCreepRangeB.creepRange.range;
         }).forEach((taskCreepRange, index) => {
             if (taskCreepRange.creepRange.creep.isIdle()) {
                 taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
@@ -33,9 +33,7 @@ export class TaskMaster {
     }
 
     public static getGroupedTasks() {
-        let availableTasks = this.getAvailableTasks();
-
-        return availableTasks.groupBy(val => (val.constructor as any).name);
+        return this.getAvailableTasks().groupBy(val => (val.constructor as any).name);
     }
 
     private static getAvailableTasks() {

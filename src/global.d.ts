@@ -62,7 +62,7 @@ declare global {
 
         spawnCreepForTask(task: Task): void;
 
-        getBody(component: BodyPartConstant[]): BodyPartConstant[];
+        createBody(component: BodyPartConstant[]): BodyPartConstant[];
 
         bodyCost(body: BodyPartConstant[]): number;
 

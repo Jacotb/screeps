@@ -63,7 +63,7 @@ export class HarvestTask extends Task {
         }
     }
 
-    public startPoint(){
+    public startPoint() {
         return this.source.pos;
     }
 
@@ -79,7 +79,7 @@ export class HarvestTask extends Task {
                                 return false;
                             }
 
-                            return task.source == source && task.spot == spot;
+                            return task.source.id == source.id && task.spot.isEqualTo(spot);
                         }));
                 });
             })
@@ -95,7 +95,7 @@ export class HarvestTask extends Task {
             ))));
     }
 
-    public toString = () : string => {
+    public toString = (): string => {
         return `${(this.constructor as any).name}(${this.spot})`;
     }
 }
