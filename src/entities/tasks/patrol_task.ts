@@ -21,7 +21,7 @@ export class PatrolTask extends Task {
     }
 
     public bodyParts(): BodyPartConstant[] {
-        return [MOVE, ATTACK];
+        return _.sample([[MOVE, ATTACK], [MOVE, RANGED_ATTACK]]);
     }
 
     public run(creep: Creep) {

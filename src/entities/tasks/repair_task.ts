@@ -2,6 +2,7 @@ import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {SupplyTask} from "./supply_task";
+import {MeleeTask} from "./melee_task";
 
 export class RepairTask extends Task {
     public constructor(public target: Structure) {
@@ -16,7 +17,12 @@ export class RepairTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new RepairTask(Game.getObjectById(data.target) as Structure);
+        const target = Game.getObjectById(data.target);
+        if (target) {
+            return new RepairTask(target as Structure);
+        } else {
+            return null;
+        }
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -91,7 +97,7 @@ export class RepairTask extends Task {
                 return structureDamageB.damage / structureDamageB.structure.hitsMax - structureDamageA.damage / structureDamageA.structure.hitsMax;
             }).map(structureDamage => {
                 return new RepairTask(structureDamage.structure);
-            }), 4);
+            }), 8);
     }
 
     public toString = (): string => {

@@ -1,6 +1,7 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
+import {MeleeTask} from "./melee_task";
 
 export class MineTask extends Task {
     public constructor(public source: Source, public spot: RoomPosition) {
@@ -12,7 +13,12 @@ export class MineTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new MineTask(Game.getObjectById(data.source) as Source, new RoomPosition(data.spot.x, data.spot.y, data.spot.roomName));
+        const source = Game.getObjectById(data.source);
+        if (source) {
+            return new MineTask(source as Source, new RoomPosition(data.spot.x, data.spot.y, data.spot.roomName));
+        } else {
+            return null;
+        }
     }
 
     public bodyParts(): BodyPartConstant[] {

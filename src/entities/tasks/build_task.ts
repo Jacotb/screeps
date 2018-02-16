@@ -16,7 +16,12 @@ export class BuildTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new BuildTask(Game.getObjectById(data.target) as ConstructionSite);
+        const target = Game.getObjectById(data.target);
+        if (target) {
+            return new BuildTask(target as ConstructionSite);
+        } else {
+            return null;
+        }
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -92,7 +97,7 @@ export class BuildTask extends Task {
                     - constructionSiteWithMissingEnergyA.constructionSite.progress / constructionSiteWithMissingEnergyA.constructionSite.progressTotal;
             }).map(constructionSiteWithMissingEnergy => {
                 return new BuildTask(constructionSiteWithMissingEnergy.constructionSite);
-            }), 4);
+            }), 8);
     }
 
     public toString = (): string => {

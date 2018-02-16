@@ -2,6 +2,7 @@ import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {MineTask} from "./mine_task";
+import {BuildTask} from "./build_task";
 
 export class HarvestTask extends Task {
     public constructor(public source: Source, public spot: RoomPosition) {
@@ -13,7 +14,12 @@ export class HarvestTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new HarvestTask(Game.getObjectById(data.source) as Source, new RoomPosition(data.spot.x, data.spot.y, data.spot.roomName));
+        const source = Game.getObjectById(data.source);
+        if (source) {
+            return new HarvestTask(source as Source, new RoomPosition(data.spot.x, data.spot.y, data.spot.roomName));
+        } else {
+            return null;
+        }
     }
 
     public bodyParts() {

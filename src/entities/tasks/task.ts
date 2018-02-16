@@ -20,4 +20,8 @@ export abstract class Task {
     public isRepeatable() {
         return false;
     }
+
+    public mayPreEmpt() {
+        return false;
+    }
 }

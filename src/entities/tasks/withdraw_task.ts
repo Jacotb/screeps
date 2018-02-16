@@ -1,6 +1,7 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
+import {UpgradeTask} from "./upgrade_task";
 
 export class WithdrawTask extends Task {
     public constructor(public source: Structure, public resourceType: ResourceConstant, public amount: number) {
@@ -16,7 +17,12 @@ export class WithdrawTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new WithdrawTask(Game.getObjectById(data.source) as Structure, data.resourceType as ResourceConstant, data.amount);
+        const source = Game.getObjectById(data.source);
+        if (source) {
+            return new WithdrawTask(source as Structure, data.resourceType as ResourceConstant, data.amount);
+        } else {
+            return null;
+        }
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -80,20 +86,23 @@ export class WithdrawTask extends Task {
         return this.source.pos;
     }
 
-    public static findAll(): WithdrawTask[] {
-        const containers = RoomStatic.visibleRooms()
-            .flatMap(room => room.getContainers());
+    public isRepeatable(){
+        return true;
+    }
 
-        if (_.some(containers)) {
-            return containers.map(container => {
+    public static findAll(): WithdrawTask[] {
+        const containerAmounts = RoomStatic.visibleRooms()
+            .flatMap(room => room.getContainers())
+            .map(container => {
                 return {container, amount: container.store[RESOURCE_ENERGY]};
-            })
-                .filter(containerAmount => {
-                    return containerAmount.amount > 0;
-                })
-                .map(containerAmount => {
-                    return new WithdrawTask(containerAmount.container, RESOURCE_ENERGY, containerAmount.amount);
-                });
+            }).filter(containerAmount => {
+                return containerAmount.amount >= 50;
+            });
+
+        if (_.some(containerAmounts)) {
+            return containerAmounts.map(containerAmount => {
+                return new WithdrawTask(containerAmount.container, RESOURCE_ENERGY, containerAmount.amount);
+            });
         } else {
             const storages = <StructureStorage[]>RoomStatic.visibleRooms()
                 .map(room => room.storage)

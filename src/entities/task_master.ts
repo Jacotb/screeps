@@ -28,15 +28,25 @@ export class TaskMaster {
             };
         }).sort((taskCreepRangeA, taskCreepRangeB) => {
             return taskCreepRangeA.creepRange.range - taskCreepRangeB.creepRange.range;
-        }).forEach((taskCreepRange, index) => {
-            if (taskCreepRange.creepRange.creep.isIdle()) {
+        }).forEach((taskCreepRange) => {
+            if (taskCreepRange.task.mayPreEmpt() || taskCreepRange.creepRange.creep.isIdle()) {
                 console.log(taskCreepRange.task, taskCreepRange.creepRange.range);
                 taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
                 if (!taskCreepRange.task.isRepeatable()) {
+                    const index = this.availableTasks.indexOf(taskCreepRange.task);
                     this.availableTasks.splice(index, 1);
                 }
             }
         });
+    }
+
+    public static getTaskFor(creep: Creep): Task {
+        const task = _.sample(this.getAvailableTasks().filter(task => _.some(task.eligibleCreeps(), eligibleCreep => {
+            eligibleCreep.id = creep.id;
+        })));
+        const index = this.availableTasks.indexOf(task);
+        this.availableTasks.splice(index, 1);
+        return task;
     }
 
     public static getGroupedTasks() {

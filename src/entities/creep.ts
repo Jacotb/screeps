@@ -39,6 +39,11 @@ Creep.prototype.getTask = function (): Task | null {
 
 Creep.prototype.removeTask = function () {
     delete this.memory.task;
+    const task = TaskMaster.getTaskFor(this);
+    if (task) {
+        this.setTask(task);
+        this.run();
+    }
 };
 
 

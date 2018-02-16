@@ -91,17 +91,13 @@ StructureSpawn.prototype.buildExtensions = function () {
 };
 
 StructureSpawn.prototype.spawnCreepForTask = function (task) {
-    this.spawnCreep(this.createBody(task.bodyParts()), `${this.name}-${Game.time}`, {
-        memory: {
-            task: task.serialize()
-        }
-    });
+    this.spawnCreep(this.createBody(task.bodyParts()), `${this.name}-${Game.time}`);
 };
 
 StructureSpawn.prototype.createBody = function (component) {
     let body = component;
     let testBody = body;
-    while (this.bodyCost(testBody) <= this.room.energyCapacityAvailable) {
+    while (this.bodyCost(testBody) <= this.room.energyAvailable) {
         body = testBody;
         testBody = testBody.concat(component);
     }

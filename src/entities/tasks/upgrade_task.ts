@@ -2,6 +2,7 @@ import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {WithdrawTask} from "./withdraw_task";
+import {SupplyTask} from "./supply_task";
 
 export class UpgradeTask extends Task {
     public constructor(public target: StructureController) {
@@ -16,7 +17,12 @@ export class UpgradeTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new UpgradeTask(Game.getObjectById(data.target) as StructureController);
+        const target = Game.getObjectById(data.target);
+        if (target) {
+            return new UpgradeTask(target as StructureController);
+        } else {
+            return null;
+        }
     }
 
     public bodyParts(): BodyPartConstant[] {

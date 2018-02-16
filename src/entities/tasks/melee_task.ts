@@ -1,5 +1,8 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
+import {BuildTask} from "./build_task";
+import {CreepStatic} from "../static/creep_static";
+import {PatrolTask} from "./patrol_task";
 
 export class MeleeTask extends Task {
     public constructor(public target: Creep | Structure) {
@@ -14,7 +17,16 @@ export class MeleeTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new MeleeTask(Game.getObjectById(data.target) as Creep | Structure);
+        const target = Game.getObjectById(data.target);
+        if (target) {
+            return new MeleeTask(target as Creep | Structure);
+        } else {
+            return null;
+        }
+    }
+
+    public eligibleCreeps(): Creep[] {
+        return CreepStatic.findAllByBodyParts(this.bodyParts()).filter(creep => creep.isIdle() || (creep.getTask() as any).constructor.name == (PatrolTask as any).name);
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -65,6 +77,10 @@ export class MeleeTask extends Task {
     }
 
     public isRepeatable(){
+        return true;
+    }
+
+    public mayPreEmpt(){
         return true;
     }
 

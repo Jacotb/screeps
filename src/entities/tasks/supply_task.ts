@@ -1,6 +1,7 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
+import {ShootTask} from "./shoot_task";
 
 export class SupplyTask extends Task {
     public constructor(public target: Structure, public resourceType: ResourceConstant, public amount: number) {
@@ -17,7 +18,12 @@ export class SupplyTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new SupplyTask(Game.getObjectById(data.target) as Structure, data.resourceType as ResourceConstant, data.amount);
+        const target = Game.getObjectById(data.target);
+        if (target) {
+            return new SupplyTask(target as Structure, data.resourceType as ResourceConstant, data.amount);
+        } else {
+            return null;
+        }
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -36,8 +42,29 @@ export class SupplyTask extends Task {
             return;
         }
 
+        let targetRemainingEnergyCapacity = 0;
+        switch(this.target.structureType){
+            case STRUCTURE_STORAGE:
+                targetRemainingEnergyCapacity = (<StructureStorage>this.target).storeCapacity - _.sum((<StructureStorage>this.target).store);
+                break;
+            case STRUCTURE_EXTENSION:
+                targetRemainingEnergyCapacity = (<StructureExtension>this.target).energyCapacity - (<StructureExtension>this.target).energy;
+                break;
+            case STRUCTURE_TOWER:
+                targetRemainingEnergyCapacity = (<StructureTower>this.target).energyCapacity - (<StructureTower>this.target).energy;
+                break;
+            case STRUCTURE_SPAWN:
+                targetRemainingEnergyCapacity = (<StructureSpawn>this.target).energyCapacity - (<StructureSpawn>this.target).energy;
+                break;
+        }
 
-        switch (creep.transfer(this.target, this.resourceType, creep.carry.energy)) {
+        if (targetRemainingEnergyCapacity == 0){
+            creep.removeTask();
+            return;
+        }
+
+
+        switch (creep.transfer(this.target, this.resourceType, Math.min(creep.carry.energy, targetRemainingEnergyCapacity))) {
             case OK:
             case ERR_TIRED:
                 break;
