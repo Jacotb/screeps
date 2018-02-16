@@ -5,7 +5,10 @@ import {SupplyTask} from "./tasks/supply_task";
 import {BuildTask} from "./tasks/build_task";
 import {WithdrawTask} from "./tasks/withdraw_task";
 import {UpgradeTask} from "./tasks/upgrade_task";
-import {AttackTask} from "./tasks/attack_task";
+import {MeleeTask} from "./tasks/melee_task";
+import {PatrolTask} from "./tasks/patrol_task";
+import {ShootTask} from "./tasks/shoot_task";
+import {RepairTask} from "./tasks/repair_task";
 
 export class TaskMaster {
     private static availableTasks: Task[] = [];
@@ -27,6 +30,7 @@ export class TaskMaster {
             return taskCreepRangeA.creepRange.range - taskCreepRangeB.creepRange.range;
         }).forEach((taskCreepRange, index) => {
             if (taskCreepRange.creepRange.creep.isIdle()) {
+                console.log(taskCreepRange.task, taskCreepRange.creepRange.range);
                 taskCreepRange.creepRange.creep.setTask(taskCreepRange.task);
                 if (!taskCreepRange.task.isRepeatable()) {
                     this.availableTasks.splice(index, 1);
@@ -49,7 +53,7 @@ export class TaskMaster {
     }
 
     public static getCreepLessTask(spot: RoomPosition): Task {
-        return _.sample(this.getGroupedTasks().values().next().value as Task[]);
+        return _.sample(this.getAvailableTasks());
     }
 
     public static taskTypes() {
@@ -60,7 +64,10 @@ export class TaskMaster {
             BuildTask,
             WithdrawTask,
             UpgradeTask,
-            AttackTask
+            MeleeTask,
+            ShootTask,
+            PatrolTask,
+            RepairTask
         ];
     }
 }

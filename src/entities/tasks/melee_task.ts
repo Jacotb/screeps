@@ -1,7 +1,7 @@
 import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 
-export class AttackTask extends Task {
+export class MeleeTask extends Task {
     public constructor(public target: Creep | Structure) {
         super();
     }
@@ -14,7 +14,7 @@ export class AttackTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new AttackTask(Game.getObjectById(data.target) as Creep | Structure);
+        return new MeleeTask(Game.getObjectById(data.target) as Creep | Structure);
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -56,12 +56,16 @@ export class AttackTask extends Task {
         return this.target.pos;
     }
 
-    public static findAll(): AttackTask[] {
+    public static findAll(): MeleeTask[] {
         return RoomStatic.visibleRooms()
             .flatMap(room => room.find(FIND_HOSTILE_CREEPS))
             .map(creep => {
-                return new AttackTask(creep);
+                return new MeleeTask(creep);
             });
+    }
+
+    public isRepeatable(){
+        return true;
     }
 
     public toString = (): string => {

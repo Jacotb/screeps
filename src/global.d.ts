@@ -25,6 +25,8 @@ declare global {
 
         getSources(): Source[];
 
+        getOwnStructures(): Structure[];
+
         getOwnEnergyStructures(): Structure[];
 
         getContainers(): StructureContainer[];
@@ -55,6 +57,10 @@ declare global {
         hasRoadConstructionSite(): boolean;
 
         isOccupied(): boolean;
+
+        isOccupiedBy(creep: Creep): boolean;
+
+        isOccupiedButNotBy(creep: Creep): boolean;
     }
 
 

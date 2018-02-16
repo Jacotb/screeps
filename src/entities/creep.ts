@@ -10,7 +10,13 @@ Creep.prototype.run = function () {
         return;
     }
 
-    (<Task>this.getTask()).run(this);
+    const task = (<Task>this.getTask());
+
+    task.run(this);
+
+    if (this.getTask()){
+        this.setTask(task);
+    }
 };
 
 Creep.prototype.setTask = function (task: Task) {

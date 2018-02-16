@@ -3,8 +3,8 @@ import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {SupplyTask} from "./supply_task";
 
-export class BuildTask extends Task {
-    public constructor(public target: ConstructionSite) {
+export class RepairTask extends Task {
+    public constructor(public target: Structure) {
         super();
     }
 
@@ -16,7 +16,7 @@ export class BuildTask extends Task {
     }
 
     public static deserialize(data: any) {
-        return new BuildTask(Game.getObjectById(data.target) as ConstructionSite);
+        return new RepairTask(Game.getObjectById(data.target) as Structure);
     }
 
     public bodyParts(): BodyPartConstant[] {
@@ -30,12 +30,12 @@ export class BuildTask extends Task {
     }
 
     public run(creep: Creep) {
-        if (creep.carry.energy == 0) {
+        if (creep.carry.energy == 0 || this.target.hits >= this.target.hitsMax) {
             creep.removeTask();
             return;
         }
 
-        switch (creep.build(this.target)) {
+        switch (creep.repair(this.target)) {
             case OK:
             case ERR_TIRED:
                 break;
@@ -59,7 +59,6 @@ export class BuildTask extends Task {
             case ERR_BUSY:
             case ERR_INVALID_TARGET:
             case ERR_NO_BODYPART:
-            case ERR_RCL_NOT_ENOUGH:
                 creep.say('quit');
                 creep.removeTask();
                 break;
@@ -70,28 +69,28 @@ export class BuildTask extends Task {
         return this.target.pos;
     }
 
-    public static findAll(): BuildTask[] {
+    public static findAll(): RepairTask[] {
         return _.take(RoomStatic.visibleRooms()
-            .flatMap(room => room.getOwnConstructionSites())
-            .map(constructionSite => {
-                let missingEnergy = constructionSite.progressTotal - constructionSite.progress;
+            .flatMap(room => room.getOwnStructures())
+            .map(structure => {
+                let damage = structure.hitsMax - structure.hits;
 
-                missingEnergy -= CreepStatic.findAllByTask((BuildTask as any).name)
+                damage -= CreepStatic.findAllByTask((RepairTask as any).name)
                     .filter(creep => {
-                        return (<BuildTask>creep.getTask()).target.id == constructionSite.id;
+                        return (<RepairTask>creep.getTask()).target.id == structure.id;
                     })
                     .sum(creep => {
                         return creep.carry.energy;
                     });
 
-                return {constructionSite, missingEnergy};
-            }).filter(constructionSiteWithMissingEnergy => {
-                return constructionSiteWithMissingEnergy.missingEnergy > 0;
-            }).sort((constructionSiteWithMissingEnergyA, constructionSiteWithMissingEnergyB) => {
-                return constructionSiteWithMissingEnergyB.constructionSite.progress / constructionSiteWithMissingEnergyB.constructionSite.progressTotal
-                    - constructionSiteWithMissingEnergyA.constructionSite.progress / constructionSiteWithMissingEnergyA.constructionSite.progressTotal;
-            }).map(constructionSiteWithMissingEnergy => {
-                return new BuildTask(constructionSiteWithMissingEnergy.constructionSite);
+                return {structure, damage};
+            })
+            .filter(structureDamage => {
+                return structureDamage.damage > 0;
+            }).sort((structureDamageA, structureDamageB) => {
+                return structureDamageB.damage / structureDamageB.structure.hitsMax - structureDamageA.damage / structureDamageA.structure.hitsMax;
+            }).map(structureDamage => {
+                return new RepairTask(structureDamage.structure);
             }), 4);
     }
 

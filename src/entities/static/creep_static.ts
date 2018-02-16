@@ -6,7 +6,7 @@ export class CreepStatic {
     public static findAllByBodyParts(bodyParts: BodyPartConstant[]): Creep[] {
         return this.getAll().filter(creep => {
             return _.all(bodyParts, bodyPart => {
-                return _.some(creep.body, bodyPartDefinition => bodyPartDefinition.type == bodyPart);
+                return _.some(creep.body, bodyPartDefinition => bodyPartDefinition.type == bodyPart && bodyPartDefinition.hits > 0);
             });
         });
     }

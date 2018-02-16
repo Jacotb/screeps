@@ -51,6 +51,16 @@ RoomPosition.prototype.isOccupied = function () {
     });
 };
 
+RoomPosition.prototype.isOccupiedBy = function (occupyingCreep) {
+    return occupyingCreep.pos.isEqualTo(this);
+};
+
+RoomPosition.prototype.isOccupiedButNotBy = function (occupyingCreep) {
+    return _.some(_.values(Game.creeps) as Creep[], creep => {
+        return creep.id != occupyingCreep.id && creep.pos.isEqualTo(this);
+    });
+};
+
 RoomPosition.prototype.toString = function () {
     return `${this.getRoom().name}(${this.x},${this.y})`;
 };

@@ -12,8 +12,6 @@ import {CreepStatic} from "./entities/static/creep_static";
 import {TaskMaster} from "./entities/task_master";
 
 export const loop = ErrorMapper.wrapLoop(() => {
-    console.log(`Current game tick is ${Game.time}`);
-
     MemoryCleaner.run();
 
     Builder.run();
