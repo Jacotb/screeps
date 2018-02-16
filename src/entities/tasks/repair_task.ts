@@ -3,6 +3,7 @@ import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {SupplyTask} from "./supply_task";
 import {MeleeTask} from "./melee_task";
+import {BuildTask} from "./build_task";
 
 export class RepairTask extends Task {
     public constructor(public target: Structure) {
@@ -97,7 +98,7 @@ export class RepairTask extends Task {
                 return structureDamageB.damage / structureDamageB.structure.hitsMax - structureDamageA.damage / structureDamageA.structure.hitsMax;
             }).map(structureDamage => {
                 return new RepairTask(structureDamage.structure);
-            }), 8);
+            }), 4 - _.size(CreepStatic.findAllByTask((RepairTask as any).name)));
     }
 
     public toString = (): string => {

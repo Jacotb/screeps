@@ -1,5 +1,6 @@
-import {Task} from "./tasks/task";
 import {TaskMaster} from "./task_master";
+import {CreepStatic} from "./static/creep_static";
+import {RoomStatic} from "./static/room_static";
 
 StructureSpawn.prototype.run = function () {
     if (Game.time % 100 == 0) {
@@ -8,7 +9,9 @@ StructureSpawn.prototype.run = function () {
         this.buildExtensions();
     }
 
-    this.spawnCreepForTask(TaskMaster.getCreepLessTask(this.pos));
+    if (_.size(CreepStatic.getAll()) < 20 * _.size(RoomStatic.visibleRooms())) {
+        this.spawnCreepForTask(TaskMaster.getCreepLessTask(this.pos));
+    }
 };
 
 StructureSpawn.prototype.buildSupplyLines = function (visibleRooms) {

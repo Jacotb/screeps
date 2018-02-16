@@ -2,6 +2,7 @@ import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {ShootTask} from "./shoot_task";
+import {BuildTask} from "./build_task";
 
 export class SupplyTask extends Task {
     public constructor(public target: Structure, public resourceType: ResourceConstant, public amount: number) {
@@ -109,7 +110,7 @@ export class SupplyTask extends Task {
     }
 
     public static findAll(): SupplyTask[] {
-        return RoomStatic.visibleRooms()
+        return _.take(RoomStatic.visibleRooms()
             .flatMap(room => room.getOwnEnergyStructures())
             .map(structure => {
                 let missingEnergy = 0;
@@ -143,7 +144,7 @@ export class SupplyTask extends Task {
             })
             .map(structureWithMissingEnergy => {
                 return new SupplyTask(structureWithMissingEnergy.structure, RESOURCE_ENERGY, structureWithMissingEnergy.missingEnergy);
-            });
+            }), 4 - _.size(CreepStatic.findAllByTask((SupplyTask as any).name)))
     }
 
     public toString = (): string => {

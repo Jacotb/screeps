@@ -20,7 +20,7 @@ export class TaskMaster {
             return _.some(taskCreeps.creeps);
         }).map(taskCreeps => {
             return {
-                task: taskCreeps.task, creepRange: _.sample(taskCreeps.creeps.map(creep => {
+                task: taskCreeps.task, creepRange: _.first(taskCreeps.creeps.map(creep => {
                     return {creep, range: creep.pos.getRangeTo(taskCreeps.task.startPoint())};
                 }).sort((creepRangeA, creepRangeB) => {
                     return creepRangeA.range - creepRangeB.range;

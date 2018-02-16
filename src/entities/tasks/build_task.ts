@@ -97,7 +97,7 @@ export class BuildTask extends Task {
                     - constructionSiteWithMissingEnergyA.constructionSite.progress / constructionSiteWithMissingEnergyA.constructionSite.progressTotal;
             }).map(constructionSiteWithMissingEnergy => {
                 return new BuildTask(constructionSiteWithMissingEnergy.constructionSite);
-            }), 8);
+            }), 4 - _.size(CreepStatic.findAllByTask((BuildTask as any).name)));
     }
 
     public toString = (): string => {
