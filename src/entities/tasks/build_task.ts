@@ -76,16 +76,15 @@ export class BuildTask extends Task {
     }
 
     public static findAll(): BuildTask[] {
-        return _.take(RoomStatic.visibleRooms()
-            .flatMap(room => room.getOwnConstructionSites())
+        return _.take(_.flatten(RoomStatic.visibleRooms()
+            .map(room => room.getOwnConstructionSites()))
             .map(constructionSite => {
                 let missingEnergy = constructionSite.progressTotal - constructionSite.progress;
 
-                missingEnergy -= CreepStatic.findAllByTask((BuildTask as any).name)
+                missingEnergy -= _.sum(CreepStatic.findAllByTask((BuildTask as any).name)
                     .filter(creep => {
                         return (<BuildTask>creep.getTask()).target.id == constructionSite.id;
-                    })
-                    .sum(creep => {
+                    }),creep => {
                         return creep.carry.energy;
                     });
 

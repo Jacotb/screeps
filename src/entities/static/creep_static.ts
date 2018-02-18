@@ -14,7 +14,7 @@ export class CreepStatic {
     }
 
     public static findAllByTask(taskName: string): Creep[] {
-        return this.getAll().filter(creep => {
+        return _.filter(this.getAll(),creep => {
             return creep.getTask() !== null && ((<Task>creep.getTask()).constructor  as any).name == taskName;
         });
     }

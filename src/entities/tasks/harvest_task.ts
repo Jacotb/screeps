@@ -75,8 +75,8 @@ export class HarvestTask extends Task {
     }
 
     public static findAll(): HarvestTask[] {
-        return RoomStatic.visibleRooms()
-            .flatMap(room => room.getSources())
+        return _.flatten(RoomStatic.visibleRooms()
+            .map(room => room.getSources()))
             .filter(source => {
                 return _.all(source.getHarvestSpots(), spot => {
                     return !spot.isBlocked() && !spot.isOccupied()

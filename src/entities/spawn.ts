@@ -28,7 +28,9 @@ StructureSpawn.prototype.buildSupplyLines = function (visibleRooms) {
                 }
             });
 
-            room.createConstructionSite(path[path.length - 2].x, path[path.length - 2].y, STRUCTURE_CONTAINER);
+            if(path.length >= 2) {
+                room.createConstructionSite(path[path.length - 2].x, path[path.length - 2].y, STRUCTURE_CONTAINER);
+            }
 
             path.forEach(spot => {
                 if (!_.some(room.lookForAt("structure", spot.x, spot.y), structure => {

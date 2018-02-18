@@ -91,8 +91,8 @@ export class WithdrawTask extends Task {
     }
 
     public static findAll(): WithdrawTask[] {
-        const containerAmounts = RoomStatic.visibleRooms()
-            .flatMap(room => room.getContainers())
+        const containerAmounts = _.flatten(RoomStatic.visibleRooms()
+            .map(room => room.getContainers()))
             .map(container => {
                 return {container, amount: container.store[RESOURCE_ENERGY]};
             }).filter(containerAmount => {

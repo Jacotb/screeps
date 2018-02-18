@@ -2,11 +2,11 @@ import {Collection} from "../utils/collection";
 import range = Collection.range;
 
 Room.prototype.getAllSpots = function () {
-    return range(0, 49).flatMap(x => {
+    return _.flatten(range(0, 49).map(x => {
         return range(0, 49).map(y => {
             return this.getPositionAt(x, y);
         });
-    });
+    }));
 };
 
 Room.prototype.getSources = function () {
@@ -50,8 +50,14 @@ Room.prototype.getExtensions = function () {
     });
 };
 
+Room.prototype.getTowers = function () {
+    return this.find(FIND_MY_STRUCTURES).filter((structure: Structure) => {
+        return structure.structureType == STRUCTURE_TOWER;
+    });
+};
+
 Room.prototype.findExtensionSpot = function (closeTo: RoomPosition) {
-    const spots = _.first((<RoomPosition[]>this.getAllSpots()).filter(spot => {
+    return _.first((<RoomPosition[]>this.getAllSpots()).filter(spot => {
         return spot.x >= 2 && spot.x <= 47 && spot.y >= 2 && spot.y <= 47
             && !spot.isBlocked() && !spot.hasRoad() && !spot.hasConstructionSite() && _.all(spot.getStraightNeighbours(), neighbour => {
                 return !neighbour.isBlocked() && !neighbour.hasRoad() && !neighbour.hasConstructionSite() && _.all(neighbour.getStraightNeighbours(), neighboursNeighbour => {
@@ -59,10 +65,8 @@ Room.prototype.findExtensionSpot = function (closeTo: RoomPosition) {
                 });
             });
     }).sort((spotA, spotB) => {
-        return closeTo.getRangeTo(spotA) - closeTo.getRangeTo(spotB);
+        return closeTo.getMultiRoomRangeTo(spotA) - closeTo.getMultiRoomRangeTo(spotB);
     }));
-    console.log('spots', spots);
-    return spots;
 };
 
 Room.prototype.getOwnConstructionSites = function () {

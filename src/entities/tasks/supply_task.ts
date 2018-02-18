@@ -110,8 +110,8 @@ export class SupplyTask extends Task {
     }
 
     public static findAll(): SupplyTask[] {
-        return _.take(RoomStatic.visibleRooms()
-            .flatMap(room => room.getOwnEnergyStructures())
+        return _.take(_.flatten(RoomStatic.visibleRooms()
+            .map(room => room.getOwnEnergyStructures()))
             .map(structure => {
                 let missingEnergy = 0;
                 switch (structure.structureType) {
@@ -129,11 +129,10 @@ export class SupplyTask extends Task {
                         break;
                 }
 
-                missingEnergy -= CreepStatic.findAllByTask((SupplyTask as any).name)
+                missingEnergy -= _.sum(CreepStatic.findAllByTask((SupplyTask as any).name)
                     .filter(creep => {
                         return (<SupplyTask>creep.getTask()).target == structure;
-                    })
-                    .sum(creep => {
+                    }),creep => {
                         return creep.carry.energy;
                     });
 

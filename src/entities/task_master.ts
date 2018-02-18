@@ -21,7 +21,7 @@ export class TaskMaster {
         }).map(taskCreeps => {
             return {
                 task: taskCreeps.task, creepRange: _.first(taskCreeps.creeps.map(creep => {
-                    return {creep, range: creep.pos.getRangeTo(taskCreeps.task.startPoint())};
+                    return {creep, range: creep.pos.getMultiRoomRangeTo(taskCreeps.task.startPoint())};
                 }).sort((creepRangeA, creepRangeB) => {
                     return creepRangeA.range - creepRangeB.range;
                 }))
@@ -38,6 +38,10 @@ export class TaskMaster {
                 }
             }
         });
+
+        if (Game.time % 10 == 0) {
+            this.availableTasks = [];
+        }
     }
 
     public static getTaskFor(creep: Creep): Task {

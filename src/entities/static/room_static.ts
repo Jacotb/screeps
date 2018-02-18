@@ -28,10 +28,10 @@ export class RoomStatic {
             })
         ];
 
-        return ['sim', ...xValues.flatMap(xValue => {
+        return ['sim', ..._.flatten(xValues.map(xValue => {
             return yValues.map(yValue => {
                 return xValue + yValue;
             })
-        })];
+        }))];
     }
 }

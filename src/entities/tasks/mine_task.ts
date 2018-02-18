@@ -93,8 +93,8 @@ export class MineTask extends Task {
     }
 
     public static findAll(): MineTask[] {
-        return RoomStatic.visibleRooms()
-            .flatMap(room => room.getSources())
+        return _.flatten(RoomStatic.visibleRooms()
+            .map(room => room.getSources()))
             .filter(source => {
                 return _.some(source.getHarvestSpots(), spot => {
                     return _.some(spot.lookFor(LOOK_STRUCTURES), structure => structure.structureType == STRUCTURE_CONTAINER);
@@ -116,5 +116,9 @@ export class MineTask extends Task {
                     )
                 )
             ));
+    }
+
+    public toString = (): string => {
+        return `${(this.constructor as any).name}(${this.source})`;
     }
 }

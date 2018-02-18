@@ -7,6 +7,15 @@ RoomPosition.prototype.getRoom = function () {
     }
 };
 
+RoomPosition.prototype.getMultiRoomRangeTo = function (pos: RoomPosition) {
+    if (pos.roomName == this.roomName) {
+        return this.getRangeTo(pos);
+    }
+
+    return _.size(Game.map.findRoute(this.roomName, pos.roomName) as Array<{ exit: ExitConstant; room: string; }>) * 50;
+};
+
+
 RoomPosition.prototype.getNeighbours = function () {
     const room = this.getRoom();
     return (this.getStraightNeighbours().concat([

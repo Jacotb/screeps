@@ -33,6 +33,8 @@ declare global {
 
         getExtensions(): StructureExtension[];
 
+        getTowers(): StructureTower[];
+
         findExtensionSpot(closeTo: RoomPosition): RoomPosition;
 
         getOwnConstructionSites(): ConstructionSite[];
@@ -43,6 +45,8 @@ declare global {
 
     interface RoomPosition {
         getRoom(): Room;
+
+        getMultiRoomRangeTo(pos: RoomPosition): number;
 
         getNeighbours(): RoomPosition[];
 

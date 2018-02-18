@@ -69,8 +69,8 @@ export class MeleeTask extends Task {
     }
 
     public static findAll(): MeleeTask[] {
-        return RoomStatic.visibleRooms()
-            .flatMap(room => room.find(FIND_HOSTILE_CREEPS))
+        return _.flatten(RoomStatic.visibleRooms()
+            .map(room => room.find(FIND_HOSTILE_CREEPS)))
             .map(creep => {
                 return new MeleeTask(creep);
             });

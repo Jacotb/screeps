@@ -10,6 +10,7 @@ import {StructureSpawnStatic} from "./entities/static/spawn_static";
 import {MemoryCleaner} from "./entities/memory_cleaner";
 import {CreepStatic} from "./entities/static/creep_static";
 import {TaskMaster} from "./entities/task_master";
+import {Tower} from "./entities/tower";
 
 export const loop = ErrorMapper.wrapLoop(() => {
     MemoryCleaner.run();
@@ -25,4 +26,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
     CreepStatic.getAll().forEach(creep => {
         creep.run();
     });
+
+    Tower.run();
 });

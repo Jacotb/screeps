@@ -77,16 +77,15 @@ export class RepairTask extends Task {
     }
 
     public static findAll(): RepairTask[] {
-        return _.take(RoomStatic.visibleRooms()
-            .flatMap(room => room.getOwnStructures())
+        return _.take(_.flatten(RoomStatic.visibleRooms()
+            .map(room => room.getOwnStructures()))
             .map(structure => {
                 let damage = structure.hitsMax - structure.hits;
 
-                damage -= CreepStatic.findAllByTask((RepairTask as any).name)
+                damage -= _.sum(CreepStatic.findAllByTask((RepairTask as any).name)
                     .filter(creep => {
                         return (<RepairTask>creep.getTask()).target.id == structure.id;
-                    })
-                    .sum(creep => {
+                    }),creep => {
                         return creep.carry.energy;
                     });
 

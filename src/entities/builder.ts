@@ -21,13 +21,13 @@ export class Builder {
     }
 
     static spawnPlaced(): boolean {
-        return _.some(Game.spawns) || _.some(RoomStatic.visibleRooms().flatMap(room => {
+        return _.some(Game.spawns) || _.some(_.flatten(RoomStatic.visibleRooms().map(room => {
             return room.find(FIND_CONSTRUCTION_SITES, {
                 filter: (site: ConstructionSite) => {
                     return site.structureType == STRUCTURE_SPAWN;
                 }
             });
-        }));
+        })));
     }
 
     static placeSpawn() {
