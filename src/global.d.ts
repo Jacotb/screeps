@@ -89,10 +89,14 @@ declare global {
 
         spawnCreepForTask(task: Task): void;
 
-        createBody(component: BodyPartConstant[]): BodyPartConstant[];
+        createBody(component: BodyPartConstant[], maxSize: number): BodyPartConstant[];
 
         bodyCost(body: BodyPartConstant[]): number;
 
         run(): void;
+    }
+
+    interface SpawnMemory {
+        creepSize: number;
     }
 }

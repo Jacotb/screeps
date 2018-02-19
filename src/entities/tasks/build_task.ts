@@ -2,6 +2,8 @@ import {Task} from "./task";
 import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {SupplyTask} from "./supply_task";
+import {Collection} from "../../utils/collection";
+import srt = Collection.srt;
 
 export class BuildTask extends Task {
     public constructor(public target: ConstructionSite) {
@@ -76,18 +78,19 @@ export class BuildTask extends Task {
     }
 
     public static findAll(): BuildTask[] {
-        return _.take(_.flatten(RoomStatic.visibleRooms()
-            .map(room => room.getOwnConstructionSites()))
+        return _.take(
+            srt(_.flatten(RoomStatic.visibleRooms().map(room => room.getOwnConstructionSites())), constructionSite => {
+                return constructionSite.pos.getMultiRoomRangeTo(_.sample(Game.spawns).pos);
+            }), Task.maxConcurrentTasks() - _.size(CreepStatic.findAllByTask((BuildTask as any).name)))
             .map(constructionSite => {
                 let missingEnergy = constructionSite.progressTotal - constructionSite.progress;
 
                 missingEnergy -= _.sum(CreepStatic.findAllByTask((BuildTask as any).name)
                     .filter(creep => {
                         return (<BuildTask>creep.getTask()).target.id == constructionSite.id;
-                    }),creep => {
-                        return creep.carry.energy;
-                    });
-
+                    }), creep => {
+                    return creep.carry.energy;
+                });
                 return {constructionSite, missingEnergy};
             }).filter(constructionSiteWithMissingEnergy => {
                 return constructionSiteWithMissingEnergy.missingEnergy > 0;
@@ -96,7 +99,7 @@ export class BuildTask extends Task {
                     - constructionSiteWithMissingEnergyA.constructionSite.progress / constructionSiteWithMissingEnergyA.constructionSite.progressTotal;
             }).map(constructionSiteWithMissingEnergy => {
                 return new BuildTask(constructionSiteWithMissingEnergy.constructionSite);
-            }), 4 - _.size(CreepStatic.findAllByTask((BuildTask as any).name)));
+            });
     }
 
     public toString = (): string => {

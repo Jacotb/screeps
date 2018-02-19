@@ -3,6 +3,8 @@ import {RoomStatic} from "../static/room_static";
 import {CreepStatic} from "../static/creep_static";
 import {ShootTask} from "./shoot_task";
 import {BuildTask} from "./build_task";
+import {Collection} from "../../utils/collection";
+import srt = Collection.srt;
 
 export class SupplyTask extends Task {
     public constructor(public target: Structure, public resourceType: ResourceConstant, public amount: number) {
@@ -44,7 +46,7 @@ export class SupplyTask extends Task {
         }
 
         let targetRemainingEnergyCapacity = 0;
-        switch(this.target.structureType){
+        switch (this.target.structureType) {
             case STRUCTURE_STORAGE:
                 targetRemainingEnergyCapacity = (<StructureStorage>this.target).storeCapacity - _.sum((<StructureStorage>this.target).store);
                 break;
@@ -59,7 +61,7 @@ export class SupplyTask extends Task {
                 break;
         }
 
-        if (targetRemainingEnergyCapacity == 0){
+        if (targetRemainingEnergyCapacity == 0) {
             creep.removeTask();
             return;
         }
@@ -110,8 +112,10 @@ export class SupplyTask extends Task {
     }
 
     public static findAll(): SupplyTask[] {
-        return _.take(_.flatten(RoomStatic.visibleRooms()
-            .map(room => room.getOwnEnergyStructures()))
+        return _.take(
+            srt(_.flatten(RoomStatic.visibleRooms().map(room => room.getOwnEnergyStructures())), structure => {
+                return structure.pos.getMultiRoomRangeTo(_.sample(Game.spawns).pos);
+            }), SupplyTask.maxConcurrentTasks() - _.size(CreepStatic.findAllByTask((SupplyTask as any).name)))
             .map(structure => {
                 let missingEnergy = 0;
                 switch (structure.structureType) {
@@ -132,9 +136,9 @@ export class SupplyTask extends Task {
                 missingEnergy -= _.sum(CreepStatic.findAllByTask((SupplyTask as any).name)
                     .filter(creep => {
                         return (<SupplyTask>creep.getTask()).target == structure;
-                    }),creep => {
-                        return creep.carry.energy;
-                    });
+                    }), creep => {
+                    return creep.carry.energy;
+                });
 
                 return {structure, missingEnergy};
             })
@@ -143,10 +147,14 @@ export class SupplyTask extends Task {
             })
             .map(structureWithMissingEnergy => {
                 return new SupplyTask(structureWithMissingEnergy.structure, RESOURCE_ENERGY, structureWithMissingEnergy.missingEnergy);
-            }), 4 - _.size(CreepStatic.findAllByTask((SupplyTask as any).name)))
+            });
     }
 
     public toString = (): string => {
         return `${(this.constructor as any).name}(${this.target})`;
+    }
+
+    public static maxConcurrentTasks() {
+        return 10;
     }
 }

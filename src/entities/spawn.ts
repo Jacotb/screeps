@@ -96,13 +96,31 @@ StructureSpawn.prototype.buildExtensions = function () {
 };
 
 StructureSpawn.prototype.spawnCreepForTask = function (task) {
-    this.spawnCreep(this.createBody(task.bodyParts()), `${this.name}-${Game.time}`);
+    if (!this.memory.creepSize){
+        this.memory.creepSize = 1;
+    }
+
+    if (!this.spawning){
+        const spawnResult = this.spawnCreep(this.createBody(task.bodyParts(), this.room.energyCapacityAvailable * this.memory.creepSize), `${this.name}-${Game.time}`);
+        switch(spawnResult) {
+            case OK:
+                this.memory.creepSize = 1;
+                break;
+            case ERR_NOT_ENOUGH_RESOURCES:
+                this.memory.creepSize = this.memory.creepSize * 0.99;
+                console.log('creepSize', this.memory.creepSize);
+                break;
+            default:
+                break;
+        }
+    }
+
 };
 
-StructureSpawn.prototype.createBody = function (component) {
+StructureSpawn.prototype.createBody = function (component, maxSize) {
     let body = component;
     let testBody = body;
-    while (this.bodyCost(testBody) <= this.room.energyAvailable) {
+    while (this.bodyCost(testBody) <= maxSize) {
         body = testBody;
         testBody = testBody.concat(component);
     }

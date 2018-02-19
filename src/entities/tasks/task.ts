@@ -24,4 +24,8 @@ export abstract class Task {
     public mayPreEmpt() {
         return false;
     }
+
+    public static maxConcurrentTasks() {
+        return 4;
+    }
 }
