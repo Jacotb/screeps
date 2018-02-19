@@ -39,7 +39,7 @@ declare global {
 
         getOwnConstructionSites(): ConstructionSite[];
 
-        planRoadCostMatrix(costMatrix: CostMatrix): CostMatrix;
+        planRoadCostMatrix(): CostMatrix;
     }
 
 

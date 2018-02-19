@@ -13,11 +13,20 @@ Room.prototype.getSources = function () {
     return this.find(FIND_SOURCES);
 };
 
-Room.prototype.planRoadCostMatrix = function (costMatrix: CostMatrix) {
+Room.prototype.planRoadCostMatrix = function () {
+    const costMatrix = new PathFinder.CostMatrix();
     this.lookForAtArea("terrain", 0, 0, 49, 49, true)
         .forEach((spot: { terrain: Terrain, x: number, y: number }) => {
             if (spot.terrain == "plain" || spot.terrain == "swamp") {
-                costMatrix.set(spot.x, spot.y, 1);
+                if (_.some(this.lookForAt(LOOK_STRUCTURES, spot.x, spot.y), (structure: Structure) => {
+                        return structure.isBlocker();
+                    })) {
+                    costMatrix.set(spot.x, spot.y, Infinity);
+                } else {
+                    costMatrix.set(spot.x, spot.y, 1);
+                }
+            } else {
+                costMatrix.set(spot.x, spot.y, Infinity);
             }
         });
     return costMatrix;

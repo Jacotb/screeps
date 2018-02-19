@@ -17,26 +17,34 @@ StructureSpawn.prototype.run = function () {
 StructureSpawn.prototype.buildSupplyLines = function (visibleRooms) {
     visibleRooms.forEach(room => {
         room.getSources().forEach(source => {
-            const path = room.findPath(this.pos, source.pos, {
-                ignoreCreeps: true,
-                costCallback: (roomName, costMatrix) => {
-                    const room = Game.rooms[roomName];
-                    if (!room) {
-                        return costMatrix;
+            const pathFinderRsult = PathFinder.search(this.pos,
+                {
+                    pos: source.pos,
+                    range: 1
+                }, {
+                    plainCost: 1,
+                    swampCost: 1,
+                    roomCallback: roomName => {
+                        if (_.some(visibleRooms, room => {
+                            return room.name == roomName;
+                        })){
+                            return room.planRoadCostMatrix();
+                        } else {
+                            return false;
+                        }
                     }
-                    return room.planRoadCostMatrix(costMatrix);
-                }
-            });
+                });
 
-            if(path.length >= 2) {
-                room.createConstructionSite(path[path.length - 2].x, path[path.length - 2].y, STRUCTURE_CONTAINER);
+            if (pathFinderRsult.path.length >= 1) {
+                const containerSpot = pathFinderRsult.path[pathFinderRsult.path.length - 1];
+                Game.rooms[containerSpot.roomName].createConstructionSite(containerSpot.x, containerSpot.y, STRUCTURE_CONTAINER);
             }
 
-            path.forEach(spot => {
-                if (!_.some(room.lookForAt("structure", spot.x, spot.y), structure => {
+            pathFinderRsult.path.forEach(spot => {
+                if (!_.some(Game.rooms[spot.roomName].lookForAt("structure", spot.x, spot.y), structure => {
                         return structure.structureType == STRUCTURE_ROAD || structure.structureType == STRUCTURE_CONTAINER;
                     })) {
-                    room.createConstructionSite(spot.x, spot.y, STRUCTURE_ROAD);
+                    Game.rooms[spot.roomName].createConstructionSite(spot.x, spot.y, STRUCTURE_ROAD);
                 }
             });
         })
@@ -58,7 +66,7 @@ StructureSpawn.prototype.buildControllerSupplyLines = function (visibleRooms) {
                 if (!room) {
                     return costMatrix;
                 }
-                return room.planRoadCostMatrix(costMatrix);
+                return room.planRoadCostMatrix();
             }
         });
 
@@ -96,13 +104,13 @@ StructureSpawn.prototype.buildExtensions = function () {
 };
 
 StructureSpawn.prototype.spawnCreepForTask = function (task) {
-    if (!this.memory.creepSize){
+    if (!this.memory.creepSize) {
         this.memory.creepSize = 1;
     }
 
-    if (!this.spawning){
+    if (!this.spawning) {
         const spawnResult = this.spawnCreep(this.createBody(task.bodyParts(), this.room.energyCapacityAvailable * this.memory.creepSize), `${this.name}-${Game.time}`);
-        switch(spawnResult) {
+        switch (spawnResult) {
             case OK:
                 this.memory.creepSize = 1;
                 break;
