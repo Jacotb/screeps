@@ -77,27 +77,30 @@ export class HarvestTask extends Task {
     public static findAll(): HarvestTask[] {
         return _.flatten(RoomStatic.visibleRooms()
             .map(room => room.getSources()))
-            .filter(source => {
-                return _.all(source.getHarvestSpots(), spot => {
-                    return !spot.isBlocked() && !spot.isOccupied()
+            .map(source => {
+                return {source: source, spots: source.getHarvestSpots()};
+            })
+            .filter(sourceSpots => {
+                return _.some(sourceSpots.spots, spot => {
+                    return !spot.isOccupied()
                         && !_.some(CreepStatic.getAll().filter(creep => {
                             const task = creep.getTask();
                             if (!task || !(task instanceof HarvestTask)) {
                                 return false;
                             }
 
-                            return task.source.id == source.id && task.spot.isEqualTo(spot);
+                            return task.source.id == sourceSpots.source.id && task.spot.isEqualTo(spot);
                         }));
                 });
             })
-            .map(source => new HarvestTask(source, _.sample(_.filter(source.getHarvestSpots(), spot => !spot.isBlocked() && !spot.isOccupied()
+            .map(sourceSpots => new HarvestTask(sourceSpots.source, _.sample(_.filter(sourceSpots.spots, spot => !spot.isOccupied()
                 && !_.some(CreepStatic.getAll().filter(creep => {
                     const task = creep.getTask();
                     if (!task || (!(task instanceof HarvestTask) && !(task instanceof MineTask))) {
                         return false;
                     }
 
-                    return task.source == source && task.spot == spot;
+                    return task.source.id == sourceSpots.source.id && task.spot.isEqualTo(spot);
                 }))
             ))));
     }

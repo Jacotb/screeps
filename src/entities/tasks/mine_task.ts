@@ -39,7 +39,7 @@ export class MineTask extends Task {
             return;
         }
 
-        if (!creep.pos.isEqualTo(this.spot)){
+        if (!creep.pos.isEqualTo(this.spot)) {
             switch (creep.moveTo(this.spot)) {
                 case OK:
                 case ERR_TIRED:
@@ -88,7 +88,7 @@ export class MineTask extends Task {
         }
     }
 
-    public startPoint(){
+    public startPoint() {
         return this.source.pos;
     }
 
@@ -104,7 +104,7 @@ export class MineTask extends Task {
                         return false;
                     }
 
-                    return task.source == source;
+                    return task.source.id == source.id;
                 }));
             })
             .map(source => new MineTask(

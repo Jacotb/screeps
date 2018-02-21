@@ -14,7 +14,7 @@ export class TaskMaster {
     private static availableTasks: Task[] = [];
 
     static run(): void {
-        this.getAvailableTasks().map(task => {
+        this.getAssignableTasks().map(task => {
             return {task, creeps: task.eligibleCreeps()};
         }).filter(taskCreeps => {
             return _.some(taskCreeps.creeps);
@@ -39,13 +39,13 @@ export class TaskMaster {
             }
         });
 
-        if (Game.time % 10 == 0) {
+        if (Game.time % 5 == 0) {
             this.availableTasks = [];
         }
     }
 
     public static getTaskFor(creep: Creep): Task {
-        const task = _.sample(this.getAvailableTasks().filter(task => _.some(task.eligibleCreeps(), eligibleCreep => {
+        const task = _.sample(this.getAssignableTasks().filter(task => _.some(task.eligibleCreeps(), eligibleCreep => {
             eligibleCreep.id = creep.id;
         })));
         const index = this.availableTasks.indexOf(task);
@@ -54,29 +54,32 @@ export class TaskMaster {
     }
 
     public static getGroupedTasks() {
-        return this.getAvailableTasks().groupBy(val => (val.constructor as any).name);
+        return this.getAssignableTasks().groupBy(val => (val.constructor as any).name);
     }
 
-    private static getAvailableTasks() {
+    private static getAssignableTasks() {
         if (_.size(this.availableTasks) == 0) {
-            this.taskTypes().map(taskType => taskType.findAll()).forEach(tasks => {
-                this.availableTasks = this.availableTasks.concat(tasks);
-            });
+            this.availableTasks = _.flatten(this.taskTypes().map(taskType => (<Task[]>taskType.findAll()).filter((task: Task) => {
+                return _.some(task.eligibleCreeps());
+            })));
         }
         return this.availableTasks;
     }
 
-    public static getCreepLessTask(spot: RoomPosition): Task {
-        return _.sample(this.getAvailableTasks());
+
+    public static getNonAssignableTasks() {
+        return _.flatten(this.taskTypes().map(taskType => (<Task[]>taskType.findAll()).filter((task: Task) => {
+            return !_.some(task.eligibleCreeps());
+        })));
     }
 
     public static taskTypes() {
         return [
-            HarvestTask,
             MineTask,
             SupplyTask,
-            BuildTask,
             WithdrawTask,
+            HarvestTask,
+            BuildTask,
             UpgradeTask,
             MeleeTask,
             ShootTask,

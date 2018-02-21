@@ -5,6 +5,14 @@ export class RoomStatic {
         return _.values(Game.rooms);
     }
 
+    static domainRoomNames(): string[] {
+        return [
+            'W79S83',
+            'W78S83',
+            'W79S84',
+        ];
+    }
+
     static availableRoomNames(): string[] {
         return _.filter(this.allRoomNames(), Game.map.isRoomAvailable);
     }

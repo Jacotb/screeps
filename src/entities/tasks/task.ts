@@ -26,6 +26,6 @@ export abstract class Task {
     }
 
     public static maxConcurrentTasks() {
-        return 4;
+        return 8;
     }
 }

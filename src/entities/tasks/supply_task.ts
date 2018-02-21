@@ -152,7 +152,7 @@ export class SupplyTask extends Task {
 
     public toString = (): string => {
         return `${(this.constructor as any).name}(${this.target})`;
-    }
+    };
 
     public static maxConcurrentTasks() {
         return 10;

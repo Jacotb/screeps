@@ -9,8 +9,13 @@ StructureSpawn.prototype.run = function () {
         this.buildExtensions();
     }
 
-    if (_.size(CreepStatic.getAll()) < 20 * _.size(RoomStatic.visibleRooms())) {
-        this.spawnCreepForTask(TaskMaster.getCreepLessTask(this.pos));
+    if (!this.spawning) {
+        if (_.size(CreepStatic.getAll()) < 20 * _.size(RoomStatic.visibleRooms())) {
+            const task = _.sample(TaskMaster.getNonAssignableTasks());
+            if (task) {
+                this.spawnCreepForTask(task);
+            }
+        }
     }
 };
 
@@ -109,6 +114,11 @@ StructureSpawn.prototype.spawnCreepForTask = function (task) {
     }
 
     if (!this.spawning) {
+        if (this.room.energyCapacityAvailable * this.memory.creepSize > this.room.energyAvailable){
+            this.memory.creepSize = this.memory.creepSize * 0.99;
+            return;
+        }
+
         const spawnResult = this.spawnCreep(this.createBody(task.bodyParts(), this.room.energyCapacityAvailable * this.memory.creepSize), `${this.name}-${Game.time}`);
         switch (spawnResult) {
             case OK:
@@ -116,7 +126,6 @@ StructureSpawn.prototype.spawnCreepForTask = function (task) {
                 break;
             case ERR_NOT_ENOUGH_RESOURCES:
                 this.memory.creepSize = this.memory.creepSize * 0.99;
-                console.log('creepSize', this.memory.creepSize);
                 break;
             default:
                 break;

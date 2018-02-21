@@ -18,12 +18,19 @@ Room.prototype.planRoadCostMatrix = function () {
     this.lookForAtArea("terrain", 0, 0, 49, 49, true)
         .forEach((spot: { terrain: Terrain, x: number, y: number }) => {
             if (spot.terrain == "plain" || spot.terrain == "swamp") {
-                if (_.some(this.lookForAt(LOOK_STRUCTURES, spot.x, spot.y), (structure: Structure) => {
+                const structures = this.lookForAt(LOOK_STRUCTURES, spot.x, spot.y);
+                if (_.some(structures, (structure: Structure) => {
                         return structure.isBlocker();
                     })) {
                     costMatrix.set(spot.x, spot.y, Infinity);
                 } else {
-                    costMatrix.set(spot.x, spot.y, 1);
+                    if (_.some(structures, (structure: Structure) => {
+                            return structure.structureType == STRUCTURE_ROAD;
+                        })) {
+                        costMatrix.set(spot.x, spot.y, 0.8);
+                    } else {
+                        costMatrix.set(spot.x, spot.y, 1);
+                    }
                 }
             } else {
                 costMatrix.set(spot.x, spot.y, Infinity);
